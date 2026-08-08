@@ -21,6 +21,10 @@ import ProjectsSection from "./components/ProjectsSection";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
 
+// Fuerza renderizado dinámico: se consulta MongoDB en cada visita
+// (en vez de prerenderizar estático al compilar, que congelaba los datos).
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   let projects = [];
 

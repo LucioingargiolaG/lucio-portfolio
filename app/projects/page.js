@@ -18,6 +18,9 @@ export const metadata = {
     "Portafolio de proyectos de desarrollo front-end y marketing digital de Lucio Ingargiola.",
 };
 
+// Fuerza renderizado dinámico: consulta MongoDB en cada visita.
+export const dynamic = 'force-dynamic';
+
 export default async function ProjectsPage() {
   let projects = [];
 
