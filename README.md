@@ -38,15 +38,15 @@ Creá un archivo `.env.local` en la raíz:
 
 ```
 MONGODB_URI=mongodb://localhost:27017/lucio-portfolio
-ADMIN_PIN=lucio2026
+ADMIN_PIN=tu-clave-secreta
 ```
 
 | Variable | Descripción |
 | --- | --- |
 | `MONGODB_URI` | URI de conexión a MongoDB |
-| `ADMIN_PIN` | Código para acceder al panel de administración |
+| `ADMIN_PIN` | Código de acceso del panel privado |
 
-> 🔒 **Seguridad:** cambiá `ADMIN_PIN` antes de publicar el sitio. `.env.local` está en `.gitignore`, así que no se sube al repositorio.
+> 🔒 **Seguridad:** el panel de administración es privado y no está documentado en este README. `.env.local` está en `.gitignore`, así que no se sube al repositorio.
 
 ---
 
@@ -106,17 +106,6 @@ Seleccionable con el toggle **ES / EN** en la navbar. Las traducciones viven en 
 ## Tema
 
 Toggle **🌙 / ☀️** en la navbar. El tema se guarda en `localStorage`, se aplica una clase `.light` al `<html>` y todas las variables de color están definidas en `app/globals.css`.
-
----
-
-## Acceso al panel de administración
-
-1. Escribí `admin` en cualquier parte del sitio (en el input/teclado, no hace falta un campo visible).
-2. Aparece un **candado flotante** cerca del avatar (durante ~6 segundos).
-3. Clic en el candado → ingresá el **PIN** (`ADMIN_PIN`, por defecto `lucio2026`).
-4. Se abre `/admin`, donde podés **crear** y **eliminar** proyectos.
-
-El PIN se guarda en `sessionStorage` y se envía a las API en el header `x-admin-pin`. Las rutas `/admin` y `/api/admin/*` no están indexadas por buscadores (`robots: { index: false }`).
 
 ---
 

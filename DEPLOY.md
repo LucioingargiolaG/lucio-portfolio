@@ -98,7 +98,7 @@ MONGODB_URI = mongodb+srv://admin:TUCLAVE@cluster0.xxxxx.mongodb.net/lucio-portf
 ADMIN_PIN   = <una clave nueva y segura>
 ```
 
-Esto reemplaza a tu `.env.local` local. **Importante:** cambiá el PIN, el viejo (`lucio2026`) es público.
+Esto reemplaza a tu `.env.local` local. **Importante:** elegí un PIN fuerte que no esté publicado en ningún lado.
 
 ### 5. Probar
 
