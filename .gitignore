@@ -35,6 +35,9 @@ yarn-error.log*
 *.log
 dev.log
 
+# --- Documentación interna (no se publica) ---
+GUIA-INTERNA.md
+
 # --- Variables de entorno ---
 # .env.local (y similares) contienen secretos: NUNCA deben subirse a git.
 # Creá tu propio .env.local a partir de .env.example (no incluido aún).
