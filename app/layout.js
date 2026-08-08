@@ -53,7 +53,6 @@ export const metadata = {
   title: "Lucio Ingargiola | Front End Developer",
   description:
     "Estudiante de Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
-  themeColor: "#000000",
   keywords: [
     "Lucio Ingargiola",
     "Front End",
@@ -69,6 +68,13 @@ export const metadata = {
     description:
       "Desarrollador Front End y estudiante de Desarrollo de Aplicaciones Informáticas",
   },
+};
+
+// Configuración de viewport y tema del navegador. El theme-color evita que
+// el navegador muestre bordes blancos (barra de dirección/overscroll) en
+// móvil, ya que el fondo del sitio es oscuro.
+export const viewport = {
+  themeColor: "#000000",
 };
 
 // Componente raíz: recibe `children` (la página actual).
