@@ -77,7 +77,7 @@ const seedProjects = [
     description:
       "Edición de video promocional corporativo con animaciones, transiciones y efectos visuales profesionales.",
     technologies: ["Premiere Pro", "After Effects", "Canva"],
-    githubUrl: "",
+    githubUrl: "https://github.com/LucioingargiolaG",
     category: "marketing",
     architecture:
       "Flujo de trabajo: pre-producción con guión gráfico, grabación con cámara profesional, edición en Adobe Premiere Pro con multicámara, gráficos animados en After Effects con expresiones JavaScript, color grading y exportación optimizada para web y redes sociales.",

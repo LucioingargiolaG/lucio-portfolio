@@ -2,11 +2,12 @@
   "name": "lucio-portfolio",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "seed": "node scripts/seed.js"
+    "seed": "node --env-file=.env.local scripts/seed.js"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",
