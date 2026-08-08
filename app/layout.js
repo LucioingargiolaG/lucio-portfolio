@@ -80,7 +80,7 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} ${poppins.variable} dark`}
       suppressHydrationWarning // evita warnings de hidratación por el tema
     >
-      <body className="text-[var(--ink)] antialiased">
+      <body className="text-[var(--ink)] antialiased overflow-x-hidden">
         {/* Providers: envuelven toda la app para compartir estado. */}
         <ThemeProvider>
           <LanguageProvider>

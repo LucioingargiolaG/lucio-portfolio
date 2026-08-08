@@ -85,7 +85,7 @@ export default function HeroSection() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--neon)]/40 to-transparent" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center text-center max-w-4xl mx-auto">
+      <div className="relative z-10 flex flex-col items-center text-center w-full min-w-0 max-w-4xl mx-auto">
         {/* Avatar flotante con anillo de neón rotatorio y pulso radar */}
         <div id="profile-avatar" className="relative mt-8 mb-4 animate-[float_6s_ease-in-out_infinite]">
           {/* Halo de luz detrás del avatar */}
