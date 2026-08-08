@@ -53,6 +53,7 @@ export const metadata = {
   title: "Lucio Ingargiola | Front End Developer",
   description:
     "Estudiante de Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
+  themeColor: "#000000",
   keywords: [
     "Lucio Ingargiola",
     "Front End",

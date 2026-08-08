@@ -198,7 +198,12 @@ html.light body {
 }
 
 html {
+  background-color: #000000;
   scroll-behavior: smooth;
+}
+
+html.light {
+  background-color: #17110c;
 }
 
 body {
