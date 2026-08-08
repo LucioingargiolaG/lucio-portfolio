@@ -1,4 +1,7 @@
 {
+  // Configuración del editor (VS Code) para JavaScript.
+  // Define el alias "@/*" → raíz del proyecto, así los imports
+  // `@/components/...` funcionan y se autocompletan en cualquier archivo.
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"]

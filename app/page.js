@@ -1,66 +1,64 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+/**
+ * Página principal (home) — ruta "/".
+ *
+ * Es un Server Component (async): se renderiza en el servidor y por eso
+ * puede leer de la base de datos directamente.
+ *
+ * Flujo:
+ *  1. Intenta conectar a MongoDB y traer los proyectos de la colección.
+ *  2. Si MongoDB no está disponible, el sitio NO se rompe: avisa por
+ *     consola y pasa una lista vacía (los componentes muestran "fallbacks").
+ *  3. Renderiza las secciones de la landing en orden.
+ */
 
-export default function Home() {
+import { connectToDatabase } from "@/lib/mongodb";
+import Project from "@/models/Project";
+import HeroSection from "./components/HeroSection";
+import HowIWorkSection from "./components/HowIWorkSection";
+import MarketingSection from "./components/MarketingSection";
+import RecruitmentView from "./components/RecruitmentView";
+import ProjectsSection from "./components/ProjectsSection";
+import ContactSection from "./components/ContactSection";
+import Footer from "./components/Footer";
+
+export default async function Home() {
+  let projects = [];
+
+  try {
+    // Conectamos y traemos todos los proyectos, del más nuevo al más viejo.
+    // `.lean()` devuelve objetos JS simples (más rápido, sin métodos de Mongoose).
+    await connectToDatabase();
+    const docs = await Project.find({}).sort({ createdAt: -1 }).lean();
+    // Mapeamos a objetos planos serializables para pasarlos al cliente
+    // (los ObjectId de Mongo no son JSON serializables directamente).
+    projects = docs.map((p) => ({
+      _id: String(p._id),
+      title: p.title,
+      description: p.description,
+      technologies: p.technologies ?? [],
+      githubUrl: p.githubUrl,
+      category: p.category,
+      architecture: p.architecture,
+      image: p.image ?? "🛒",
+    }));
+  } catch (err) {
+    // Si no hay base de datos, no tumbamos la página: logueamos y seguimos.
+    console.warn(
+      "MongoDB no disponible. " +
+        "Configura MONGODB_URI en .env.local para conectar.",
+      err.message
+    );
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <HeroSection /> {/* portada con foto, CV y stack */}
+      <ProjectsSection projects={projects} /> {/* carrusel de proyectos */}
+      <HowIWorkSection /> {/* metodología / pilares */}
+      <MarketingSection /> {/* servicios de marketing digital */}
+      <RecruitmentView /> {/* vista para reclutadores e IA (solo modo IA) */}
+      <ContactSection /> {/* formulario de contacto + redes */}
+      <Footer /> {/* pie de página */}
+    </>
   );
 }

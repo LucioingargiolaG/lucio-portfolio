@@ -1,49 +1,477 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==================================================================
+   ESTILOS GLOBALES del sitio
+   ==================================================================
+   - Tailwind CSS v4 se importa con @import 'tailwindcss'.
+   - Las variables de color/tema se definen en CSS custom properties
+     (--var) dentro de :root (dark) y html.light (light) para poder
+     cambiar todo el look desde un solo lugar con clases como
+     text-[var(--ink)] o bg-[var(--bg-card)].
+   - Se definen utilidades propias (text-accent, shadow-accent, etc.)
+     porque no son parte de Tailwind por defecto.
+   - Contiene las @keyframes de todas las animaciones del sitio.
+   ================================================================== */
+
+@import 'tailwindcss';
+
+/* Paleta de colores registrada en el tema de Tailwind v4 (@theme).
+   Esto hace que las clases bg-dark-card, text-accent, etc. existan. */
+@theme {
+  --color-dark-bg: #0a0a0a;
+  --color-dark-surface: #111111;
+  --color-dark-card: #1a1a1a;
+  --color-light-bg: #ffffff;
+  --color-light-surface: #f8fafc;
+  --color-light-card: #f1f5f9;
+  --color-accent: #facc15;
+  --color-accent-light: #fde047;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+  --color-border-dark: #1e293b;
+  --color-border-light: #e2e8f0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Variables por defecto del tema OSCURO. Todo lo demás usa var(--x). */
+:root {
+  --bg-page: #000000;
+  --bg-section: #050505;
+  --bg-section-alt: #0d0d0d;
+  --bg-section-glass: radial-gradient(
+      120% 60% at 50% 0%,
+      rgba(74, 222, 128, 0.05),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(5, 5, 5, 0.5),
+      transparent 30%,
+      transparent 70%,
+      rgba(5, 5, 5, 0.5)
+    );
+  --bg-section-alt-glass: radial-gradient(
+      120% 60% at 50% 100%,
+      rgba(74, 222, 128, 0.05),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(5, 5, 5, 0.5),
+      transparent 30%,
+      transparent 70%,
+      rgba(5, 5, 5, 0.5)
+    );
+  --bg-card: linear-gradient(160deg, #131313 0%, #0a0a0a 55%, #060606 100%);
+  --bg-nav: rgba(0, 0, 0, 0.5);
+  --bg-nav-solid: rgba(0, 0, 0, 0.9);
+  --bg-pill: rgba(14, 14, 14, 0.9);
+  --bg-glass: rgba(255, 255, 255, 0.08);
+
+  --ink-strong: #ffffff;
+  --ink: #f2ede3;
+  --ink-soft: #a89f8d;
+  --ink-muted: #837b6a;
+  --ink-faint: #524b3d;
+
+  --line: #1f1c17;
+  --line-soft: rgba(255, 255, 255, 0.09);
+  --line-medium: #2e2a24;
+
+  --accent: #4ade80;
+  --accent-strong: #86efac;
+  --cyan: #4ade80;
+  --green: #4ade80;
+  --green-bg: rgba(20, 83, 45, 0.4);
+  --green-border: rgba(34, 197, 94, 0.3);
+
+  /* Acento neón verde (dark) */
+  --neon: #4ade80;
+  --neon-strong: #86efac;
+  --neon-ring: rgba(74, 222, 128, 0.45);
+  --neon-ring-soft: rgba(74, 222, 128, 0.22);
+  --neon-line: rgba(74, 222, 128, 0.4);
+  --neon-line-strong: rgba(74, 222, 128, 0.65);
+  --neon-badge-bg: rgba(20, 83, 45, 0.5);
+  --neon-glow: rgba(74, 222, 128, 0.65);
+  --neon-glow-soft: rgba(74, 222, 128, 0.28);
+  --neon-ambient: rgba(74, 222, 128, 0.1);
+  --neon-halo: rgba(74, 222, 128, 0.25);
+
+  /* Toque secundario (verde claro) */
+  --neon-warm: #86efac;
+  --neon-warm-strong: #bbf7d0;
+  --neon-warm-glow: rgba(134, 239, 172, 0.6);
+  --neon-warm-halo: rgba(134, 239, 172, 0.2);
+}
+
+/* Sobrescribe las variables cuando <html> tiene la clase .light
+   (el ThemeProvider la agrega/quita dinámicamente). */
+html.light {
+  --bg-page: radial-gradient(at 15% 0%, rgba(245, 158, 11, 0.18), transparent 55%),
+    radial-gradient(at 85% 10%, rgba(239, 68, 68, 0.12), transparent 55%),
+    radial-gradient(at 8% 85%, rgba(217, 119, 6, 0.16), transparent 55%),
+    linear-gradient(135deg, #1a130c 0%, #17110c 45%, #1c150d 75%, #140f09 100%);
+  --bg-section: #16110b;
+  --bg-section-alt: #1c1510;
+  --bg-section-glass: radial-gradient(
+      120% 60% at 50% 0%,
+      rgba(251, 191, 36, 0.06),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(26, 19, 12, 0.5),
+      transparent 30%,
+      transparent 70%,
+      rgba(26, 19, 12, 0.5)
+    );
+  --bg-section-alt-glass: radial-gradient(
+      120% 60% at 50% 100%,
+      rgba(249, 115, 22, 0.06),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(26, 19, 12, 0.5),
+      transparent 30%,
+      transparent 70%,
+      rgba(26, 19, 12, 0.5)
+    );
+  --bg-card: linear-gradient(160deg, #241b12 0%, #20160d 55%, #1b120a 100%);
+  --bg-nav: rgba(22, 17, 11, 0.55);
+  --bg-nav-solid: rgba(22, 17, 11, 0.92);
+  --bg-pill: rgba(32, 25, 18, 0.9);
+  --bg-glass: rgba(245, 158, 11, 0.08);
+
+  --ink-strong: #fdf1e0;
+  --ink: #f3e4cd;
+  --ink-soft: #cdb493;
+  --ink-muted: #a98f6d;
+  --ink-faint: #7c6548;
+
+  --line: #3a2c1c;
+  --line-soft: rgba(245, 200, 150, 0.12);
+  --line-medium: #4a3823;
+
+  --accent: #f59e0b;
+  --accent-strong: #fbbf24;
+  --cyan: #f59e0b;
+  --green: #fbbf24;
+  --green-bg: rgba(120, 53, 15, 0.35);
+  --green-border: rgba(251, 191, 36, 0.3);
+
+  /* Acento cálido sobre fondo oscuro café */
+  --neon: #fbbf24;
+  --neon-strong: #fde047;
+  --neon-ring: rgba(251, 191, 36, 0.35);
+  --neon-ring-soft: rgba(251, 191, 36, 0.18);
+  --neon-line: rgba(251, 191, 36, 0.3);
+  --neon-line-strong: rgba(251, 191, 36, 0.55);
+  --neon-badge-bg: rgba(120, 53, 15, 0.4);
+  --neon-glow: rgba(251, 191, 36, 0.5);
+  --neon-glow-soft: rgba(251, 191, 36, 0.2);
+  --neon-ambient: rgba(251, 191, 36, 0.08);
+  --neon-halo: rgba(251, 191, 36, 0.2);
+
+  /* Toque secundario cálido (light) */
+  --neon-warm: #fbbf24;
+  --neon-warm-strong: #fde047;
+  --neon-warm-glow: rgba(251, 191, 36, 0.6);
+  --neon-warm-halo: rgba(251, 191, 36, 0.2);
+
+  /* Toque secundario naranja/rojo (light) */
+  --neon-red: #f97316;
+  --neon-red-strong: #fb923c;
+  --neon-red-ring: rgba(249, 115, 22, 0.35);
+  --neon-red-ring-soft: rgba(249, 115, 22, 0.18);
+  --neon-red-glow: rgba(249, 115, 22, 0.5);
+  --neon-red-glow-soft: rgba(249, 115, 22, 0.2);
+  --neon-red-halo: rgba(249, 115, 22, 0.2);
+}
+
+html.light body {
+  background:
+    radial-gradient(at 15% 0%, rgba(245, 158, 11, 0.18), transparent 55%),
+    radial-gradient(at 85% 10%, rgba(239, 68, 68, 0.12), transparent 55%),
+    radial-gradient(at 8% 85%, rgba(217, 119, 6, 0.16), transparent 55%),
+    linear-gradient(135deg, #1a130c 0%, #17110c 45%, #1c150d 75%, #140f09 100%);
+  background-attachment: fixed;
 }
 
 html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+/* Tipografía por nivel: display para títulos, mono para etiquetas/código */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-display), var(--font-inter), sans-serif;
 }
 
-a {
+/* Descripciones y párrafos: tipografía dedicada (Montserrat) para una
+   lectura más clara y con carácter que el Inter base */
+p {
+  font-family: var(--font-gotham), var(--font-inter), sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilitarios de acento temático (cambian según tema: rojo/violeta    */
+/* en dark, ámbar en light). Evita acentos hardcodeados.               */
+/* ------------------------------------------------------------------ */
+.text-accent {
+  color: var(--accent);
+}
+.text-accent-strong {
+  color: var(--accent-strong);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.bg-accent-strong {
+  background-color: var(--accent-strong);
+}
+.bg-accent-5 {
+  background-color: color-mix(in oklab, var(--accent) 5%, transparent);
+}
+.bg-accent-10 {
+  background-color: color-mix(in oklab, var(--accent) 10%, transparent);
+}
+.border-accent {
+  border-color: var(--accent);
+}
+.border-accent-20 {
+  border-color: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.border-accent-30 {
+  border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+}
+.border-accent-40 {
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.border-accent-50 {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.shadow-accent-sm {
+  box-shadow: 0 0 15px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+.shadow-accent {
+  box-shadow: 0 0 10px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+.shadow-accent-lg {
+  box-shadow: 0 0 20px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.shadow-accent-xl {
+  box-shadow: 0 0 30px color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+/* Variantes hover/group-hover para las clases de acento personalizadas */
+.hover\:text-accent:hover {
+  color: var(--accent);
+}
+.hover\:bg-accent-strong:hover {
+  background-color: var(--accent-strong);
+}
+.hover\:border-accent-40:hover {
+  border-color: color-mix(in oklab, var(--accent) 40%, transparent);
+}
+.hover\:border-accent-50:hover {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.hover\:shadow-accent-lg:hover {
+  box-shadow: 0 0 20px color-mix(in oklab, var(--accent) 35%, transparent);
+}
+.hover\:shadow-accent-xl:hover {
+  box-shadow: 0 0 30px color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.group:hover .group-hover\:border-accent-50 {
+  border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+.group:hover .group-hover\:shadow-accent-sm {
+  box-shadow: 0 0 15px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--color-dark-bg);
+}
+
+.light ::-webkit-scrollbar-track {
+  background: var(--color-light-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 30%, transparent);
   color: inherit;
-  text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+/* Hero: estrellas ascendiendo por el espacio */
+@keyframes star-rise {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -120vh, 0);
+  }
+}
+
+/* Hero: parpadeo suave de cada estrella */
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Modo claro: estrellas que flotan suavemente en lugar de ascender */
+@keyframes star-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-22px);
+  }
+}
+
+/* Hero: orbes de neón flotando lentamente */
+@keyframes orb-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(40px, -30px, 0);
+  }
+  66% {
+    transform: translate3d(-30px, 20px, 0);
+  }
+}
+
+/* Hero: pulso radar que se expande alrededor del avatar */
+@keyframes ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Hero: estrella fugaz que cruza la pantalla en diagonal */
+@keyframes shoot {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-35deg);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  30% {
+    transform: translate3d(-55vw, 38vw, 0) rotate(-35deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(-55vw, 38vw, 0) rotate(-35deg);
+    opacity: 0;
+  }
+}
+
+/* Hero: entrada escalonada de los elementos */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Hero: flotación suave del avatar */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+/* Hero: rotación lenta del anillo de neón */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Carrusel de habilidades: desplazamiento infinito */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 45s linear infinite;
+  will-change: transform;
+}
+
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 8%,
+    black 92%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
   }
 }

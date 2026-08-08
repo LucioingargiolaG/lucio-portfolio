@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Lucio Ingargiola — Portfolio
 
-## Getting Started
+Portfolio personal desarrollado con **Next.js 16** (App Router), **React 19**, **Tailwind CSS v4** y **MongoDB (Mongoose)**. Incluye dos "modos" de visualización, selector de idioma (ES/EN), modo oscuro/claro, sistema de acceso admin y un formulario de contacto simulado.
 
-First, run the development server:
+---
+
+## Stack
+
+| Tecnología | Uso |
+| --- | --- |
+| **Next.js 16.2** | Framework (App Router, Server Components, API Routes) |
+| **React 19** | UI y estado (hooks, context) |
+| **Tailwind CSS v4** | Estilos (importado vía PostCSS, tema con `@theme`) |
+| **MongoDB + Mongoose** | Base de datos y modelo `Project` |
+| **framer-motion** | Animaciones de entrada (fade-in, stagger) |
+| **lucide-react** | Íconos de interfaz |
+| **react-icons** | Íconos de marcas/tecnologías |
+
+> ⚠️ **Atención:** este proyecto usa una versión de Next.js con breaking changes respecto a versiones anteriores. Antes de tocar código, consultá la documentación local en `node_modules/next/dist/docs/`.
+
+---
+
+## Comandos
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install     # instala dependencias
+npm run dev     # servidor de desarrollo (http://localhost:3000)
+npm run build   # compila para producción
+npm run start   # sirve la build de producción
+npm run seed    # siembra MongoDB con proyectos de ejemplo
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Creá un archivo `.env.local` en la raíz:
 
-## Learn More
+```
+MONGODB_URI=mongodb://localhost:27017/lucio-portfolio
+ADMIN_PIN=lucio2026
+```
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Descripción |
+| --- | --- |
+| `MONGODB_URI` | URI de conexión a MongoDB |
+| `ADMIN_PIN` | Código para acceder al panel de administración |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> 🔒 **Seguridad:** cambiá `ADMIN_PIN` antes de publicar el sitio. `.env.local` está en `.gitignore`, así que no se sube al repositorio.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Estructura del proyecto
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+lucio-portfolio/
+├── app/
+│   ├── admin/                  → Panel de administración privado
+│   │   ├── page.js             →   wrapper con metadata (noindex)
+│   │   └── AdminPanel.js       →   login + crear/eliminar proyectos
+│   ├── api/
+│   │   └── admin/
+│   │       ├── verify/route.js     → valida el ADMIN_PIN
+│   │       └── projects/route.js   → GET/POST/DELETE de proyectos
+│   ├── components/             → todos los componentes de UI
+│   ├── context/                → contextos globales
+│   │   ├── ModeContext.js      →   modo WEB / IA
+│   │   ├── ThemeProvider.js    →   tema oscuro / claro
+│   │   └── LanguageContext.js  →   idioma ES / EN
+│   ├── globals.css             → estilos globales, variables y animaciones
+│   ├── layout.js               → raíz (fonts, metadata, providers)
+│   ├── page.js                 → página de inicio (hero + secciones)
+│   ├── projects/page.js        → página /projects (lista completa)
+│   └── portfolio-digital/page.js → placeholder (ComingSoon)
+├── lib/
+│   └── mongodb.js              → conexión a MongoDB (con cache)
+├── models/
+│   └── Project.js              → esquema Mongoose de los proyectos
+├── scripts/
+│   └── seed.js                 → borra e inserta proyectos de ejemplo
+├── public/                     → estáticos (avatar, CV, favicons)
+├── .env.local                  → variables de entorno (NO se sube)
+├── jsconfig.json               → alias "@/*" → raíz
+├── next.config.mjs             → configuración de Next.js
+└── package.json                → scripts y dependencias
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Modos de visualización
+
+El sitio tiene un **modo WEB** y un **modo IA**, que se alternan con el switch de la barra de navegación:
+
+| Sección | Modo WEB | Modo IA |
+| --- | --- | --- |
+| Hero / skills / cómo trabajo | ✅ | — |
+| Proyectos | ✅ | — |
+| Marketing (CV) | ✅ | — |
+| Contacto | ✅ | — |
+| Vista "reclutador" (resumen en markdown, botón copiar) | — | ✅ |
+
+## Idiomas
+
+Seleccionable con el toggle **ES / EN** en la navbar. Las traducciones viven en `app/context/LanguageContext.js` y se persisten en `localStorage`.
+
+## Tema
+
+Toggle **🌙 / ☀️** en la navbar. El tema se guarda en `localStorage`, se aplica una clase `.light` al `<html>` y todas las variables de color están definidas en `app/globals.css`.
+
+---
+
+## Acceso al panel de administración
+
+1. Escribí `admin` en cualquier parte del sitio (en el input/teclado, no hace falta un campo visible).
+2. Aparece un **candado flotante** cerca del avatar (durante ~6 segundos).
+3. Clic en el candado → ingresá el **PIN** (`ADMIN_PIN`, por defecto `lucio2026`).
+4. Se abre `/admin`, donde podés **crear** y **eliminar** proyectos.
+
+El PIN se guarda en `sessionStorage` y se envía a las API en el header `x-admin-pin`. Las rutas `/admin` y `/api/admin/*` no están indexadas por buscadores (`robots: { index: false }`).
+
+---
+
+## Proyectos
+
+Los proyectos se guardan en MongoDB con el siguiente modelo (`models/Project.js`):
+
+- `title` — nombre
+- `description` — qué hace
+- `technologies` — array de tecnologías
+- `githubUrl` — link al repo/portfolio
+- `category` — `web` | `landing` | `marketing`
+- `architecture` — cómo está armado
+- `image` — emoji representativo
+
+En la home se muestran en un carrusel 3D rotatorio y en `/projects` como tarjetas expandidas (zig-zag). Si MongoDB no está disponible, el sitio **no se rompe**: se muestra un estado vacío o los proyectos de ejemplo (`fallbackProjects`).
+
+---
+
+## Despliegue (Vercel)
+
+El proyecto está pensado para desplegarse en [Vercel](https://vercel.com):
+
+1. Importá el repositorio en Vercel.
+2. Agregá las variables de entorno (`MONGODB_URI`, `ADMIN_PIN`) en *Settings → Environment Variables*.
+3. Deploy.
+
+> Si MongoDB es local, no será accesible desde Vercel. Para producción conviene usar **MongoDB Atlas** (base en la nube) y apuntar `MONGODB_URI` a ese clúster.

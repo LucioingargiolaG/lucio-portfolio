@@ -1,6 +1,7 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Archivos que GIT ignora (no se versionan).
+# Doc oficial: https://help.github.com/articles/ignoring-files/
 
-# dependencies
+# --- Dependencias npm (se regeneran con `npm install`) ---
 /node_modules
 /.pnp
 .pnp.*
@@ -13,7 +14,9 @@
 # testing
 /coverage
 
-# next.js
+# --- Next.js ---
+# .next: build de desarrollo, se regenera solo.
+# out: build de exportación estática, se regenera con `next build`.
 /.next/
 /out/
 
@@ -29,9 +32,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+dev.log
 
-# env files (can opt-in for committing if needed)
+# --- Variables de entorno ---
+# .env.local (y similares) contienen secretos: NUNCA deben subirse a git.
+# Creá tu propio .env.local a partir de .env.example (no incluido aún).
 .env*
+# Excepción: si algún día querés versionar un .env de ejemplo:
+# !.env.example
 
 # vercel
 .vercel
