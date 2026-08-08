@@ -453,6 +453,15 @@ p {
   will-change: transform;
 }
 
+/* Oculta la barra de scroll en carruseles horizontales (scroll-snap) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .marquee-mask {
   -webkit-mask-image: linear-gradient(
     to right,

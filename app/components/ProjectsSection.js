@@ -1,9 +1,9 @@
 /**
- * Sección de proyectos (carrusel 3D) de la home.
+ * Sección de proyectos (carrusel lineal) de la home.
  *
- * Muestra los proyectos como tarjetas apiladas en "3D": la tarjeta activa
- * está al frente (centro) y las vecinas quedan desplazadas y escaladas.
- * Botones ◀ ▶ para navegar el carrusel.
+ * Muestra los proyectos como tarjetas en una fila deslizable horizontal
+ * (scroll-snap): el usuario arrastra o usa las flechas ◀ ▶ para avanzar.
+ * Cada tarjeta queda centrada al hacer snap.
  *
  * Si no llegan proyectos desde MongoDB (lista vacía), usa `fallbackProjects`
  * para que la sección nunca quede vacía.
@@ -12,7 +12,7 @@
  */
 'use client';
 
-import { useState } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
@@ -44,29 +44,23 @@ const fallbackProjects = [
   },
 ];
 
-// Calcula la transformación CSS de cada tarjeta según su posición relativa
-// al índice activo (delta):
-//  delta 0  → centro, tamaño completo
-//  delta ±1 → a los costados, 90% de tamaño
-//  resto    → más lejos, 85%
-function getTransform(delta) {
-  if (delta === 0) return 'translate(-50%, -50%) scale(1)';
-  if (delta === -1) return 'translate(-115%, -50%) scale(0.9)';
-  if (delta === 1) return 'translate(15%, -50%) scale(0.9)';
-  return 'translate(-50%, -50%) scale(0.85)';
-}
-
 export default function ProjectsSection({ projects }) {
   const { t } = useLanguage();
   const { mode } = useMode();
   const items = projects.length > 0 ? projects : fallbackProjects;
-  const [active, setActive] = useState(0); // índice de la tarjeta activa
+  const trackRef = useRef(null); // ref al contenedor deslizable del carrusel
 
   if (mode !== 'web') return null;
 
-  // Navegación circular: al pasar el último, vuelve al primero (módulo %).
-  const prev = () => setActive((i) => (i - 1 + items.length) % items.length);
-  const next = () => setActive((i) => (i + 1) % items.length);
+  // Desplaza el carrusel una tarjeta hacia la izquierda (dir=-1) o
+  // derecha (dir=1). Calcula el paso midiendo el ancho real de una tarjeta.
+  const scroll = (dir) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector('[data-card]');
+    const step = card ? card.offsetWidth + 24 : 364; // ancho + gap de 24px
+    track.scrollBy({ left: dir * step, behavior: 'smooth' });
+  };
 
   return (
     <>
@@ -75,27 +69,19 @@ export default function ProjectsSection({ projects }) {
         className="bg-[var(--bg-section-glass)] grid grid-cols-1 md:grid-cols-12 gap-12 items-center max-w-7xl mx-auto px-6 py-24"
       >
       {/* Carrusel (columna izquierda, 7/12 del ancho) */}
-      <div className="md:col-span-7 relative flex items-center justify-center w-full h-[400px] overflow-hidden">
-        {items.map((project, i) => {
-          // delta = distancia (en pasos) entre esta tarjeta y la activa,
-          // normalizada para que queden tarjetas de ambos lados.
-          let delta = ((i - active) % items.length + items.length) % items.length;
-          if (delta > items.length / 2) delta -= items.length;
-          const isActive = delta === 0; // tarjeta del centro
-          const offscreen = Math.abs(delta) > 1; // tarjetas lejanas (sin click)
-
-          return (
+      <div className="md:col-span-7 relative">
+        <div
+          ref={trackRef}
+          className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-4 py-2"
+        >
+          {items.map((project) => (
             <div
               key={project._id}
-              style={{ transform: getTransform(delta) }}
-              className={`absolute top-1/2 left-1/2 transition-all duration-500 ${
-                isActive
-                  ? 'z-20 opacity-100 shadow-2xl'
-                  : 'z-10 opacity-40 blur-[2px]'
-              } ${offscreen ? 'pointer-events-none' : ''}`}
+              data-card
+              className="snap-center shrink-0 w-[300px] md:w-[340px] flex"
             >
-              <Link href="/projects" className="block">
-                <article className="group relative w-[300px] md:w-[340px] overflow-hidden rounded-2xl border border-[var(--neon-line)] bg-[var(--bg-card)] flex flex-col transition-all duration-300 hover:border-[var(--neon)] hover:shadow-[0_0_40px_var(--neon-glow)]">
+              <Link href="/projects" className="block w-full">
+                <article className="group relative w-full overflow-hidden rounded-2xl border border-[var(--neon-line)] bg-[var(--bg-card)] flex flex-col transition-all duration-300 hover:border-[var(--neon)] hover:shadow-[0_0_40px_var(--neon-glow)]">
                   {/* Panel visual: fondo con patrón de puntos + emoji del proyecto */}
                   <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)]">
                     {/* Grid de puntos decorativo */}
@@ -153,24 +139,24 @@ export default function ProjectsSection({ projects }) {
                 </article>
               </Link>
             </div>
-          );
-        })}
+          ))}
+        </div>
 
         {/* Flecha anterior */}
         <button
           type="button"
-          onClick={prev}
+          onClick={() => scroll(-1)}
           aria-label="Anterior"
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
         >
           <ChevronLeft size={20} />
         </button>
         {/* Flecha siguiente */}
         <button
           type="button"
-          onClick={next}
+          onClick={() => scroll(1)}
           aria-label="Siguiente"
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
         >
           <ChevronRight size={20} />
         </button>
@@ -184,7 +170,6 @@ export default function ProjectsSection({ projects }) {
         <p className="text-[var(--ink-soft)] mb-6 leading-relaxed">
           {t.projects.carouselDesc}
         </p>
-        <div className="w-1 h-6 bg-accent rounded-full mb-6" />
         <h3 className="text-2xl font-semibold text-[var(--ink-strong)] mb-1">
           {t.projects.talkSubtitle}
         </h3>
