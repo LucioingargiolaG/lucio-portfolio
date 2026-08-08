@@ -78,7 +78,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center bg-[var(--bg-section-glass)] text-[var(--ink-strong)] px-6 py-20 overflow-hidden"
+      className="relative min-h-screen flex flex-col items-center justify-start md:justify-center bg-[var(--bg-section-glass)] text-[var(--ink-strong)] px-6 pt-28 pb-16 md:py-20 overflow-hidden"
     >
       {/* Brillo ambiental central + línea de horizonte neón */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
