@@ -4,10 +4,10 @@
  * Cómo funciona (easter egg):
  *  1. Tecleá la palabra "admin" en cualquier parte de la página.
  *  2. Aparece un candado flotante arriba a la derecha (6 segundos).
- *  3. Al clickearlo, se abre un input de PIN que "emerge" de la foto de
- *     perfil (animación con framer-motion y posicionamiento calculado).
- *  4. Si el PIN es correcto (validado contra /api/admin/verify), te redirige
- *     a /admin.
+ *  3. Al clickearlo, se abre un input de contraseña que "emerge" de la foto
+ *     de perfil (animación con framer-motion y posicionamiento calculado).
+ *  4. Si la contraseña es correcta (validada contra /api/admin/verify, que
+ *     firma una cookie HttpOnly de sesión), te redirige a /admin.
  *
  * También maneja: botón atrás del navegador (history), Escape y click en un
  * link para cerrar el overlay.
@@ -30,7 +30,7 @@ export default function SecretAccess() {
   const [showLock, setShowLock] = useState(false); // ¿mostrar candado?
   const [open, setOpen] = useState(false); // ¿overlay de PIN abierto?
   const [pos, setPos] = useState(null); // posición y punto de origen
-  const [pin, setPin] = useState(''); // texto del input
+  const [password, setPassword] = useState(''); // texto del input
   const [loading, setLoading] = useState(false); // verificando PIN
   const [error, setError] = useState(null); // mensaje de error
 
@@ -53,7 +53,7 @@ export default function SecretAccess() {
   // atrás no deje la página "falsa").
   const closeOverlay = useCallback(() => {
     setOpen(false);
-    setPin('');
+    setPassword('');
     setError(null);
     if (historyPushedRef.current) {
       historyPushedRef.current = false;
@@ -177,7 +177,8 @@ export default function SecretAccess() {
     }
   }, [open]);
 
-  // Verifica el PIN contra la API y, si es correcto, redirige a /admin.
+  // Verifica la contraseña contra la API. Si es correcta, el servidor firma
+  // una cookie HttpOnly (la sesión) y redirigimos a /admin.
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -186,19 +187,18 @@ export default function SecretAccess() {
       const res = await fetch('/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ password }),
       });
       const data = await res.json();
       if (res.ok) {
-        // Guardamos el PIN en sessionStorage (vida útil = pestaña).
-        sessionStorage.setItem('admin_pin', pin);
+        // La sesión viaja en la cookie HttpOnly: no guardamos nada acá.
         setOpen(false);
-        setPin('');
+        setPassword('');
         setError(null);
         historyPushedRef.current = false;
         router.replace('/admin'); // reemplaza la URL (no deja el overlay en history)
       } else {
-        setError(data.error ?? 'Código incorrecto');
+        setError(data.error ?? 'Contraseña incorrecta');
       }
     } catch (err) {
       setError(err.message);
@@ -280,16 +280,16 @@ export default function SecretAccess() {
               </div>
 
               <label className="block text-xs font-semibold uppercase tracking-wider mb-2 mt-6 text-[var(--ink-soft)]">
-                Código de acceso
+                Contraseña
               </label>
               <input
                 ref={inputRef}
                 type="password"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
                 autoFocus
-                placeholder="Ingresá tu código"
+                placeholder="Ingresá tu contraseña"
                 className="w-full px-4 py-3 rounded-xl border border-[var(--line)] bg-[var(--bg-section-glass)] text-sm text-[var(--ink-strong)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:border-accent transition-colors"
               />
 

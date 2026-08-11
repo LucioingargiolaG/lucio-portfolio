@@ -1,8 +1,8 @@
 /**
  * Ruta API CRUD de proyectos: /api/admin/projects
  *
- * Toda petición debe enviar el header `x-admin-pin` con el PIN correcto
- * (mismo valor que ADMIN_PIN en .env.local). Si no, responde 401.
+ * Toda petición debe traer la cookie de sesión válida (firmada por el
+ * servidor al hacer login en /api/admin/verify). Si no hay sesión → 401.
  *
  * Métodos soportados:
  *  - GET    → lista todos los proyectos (del más nuevo al más viejo)
@@ -13,22 +13,18 @@
 import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Project from "@/models/Project";
-
-const ADMIN_PIN = process.env.ADMIN_PIN;
+import { isAuthenticatedRequest } from "@/lib/auth";
 
 /**
- * Valida que el header "x-admin-pin" coincida con el PIN del servidor.
+ * Valida la sesión del request contra la cookie firmada.
  */
-function checkPin(req) {
-  return ADMIN_PIN && req.headers.get("x-admin-pin") === ADMIN_PIN;
+function unauthorized() {
+  return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 }
 
 // GET: lista de proyectos.
 export async function GET(req) {
-  // Seguridad: sin PIN no se devuelve nada.
-  if (!checkPin(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!isAuthenticatedRequest(req)) return unauthorized();
 
   try {
     await connectToDatabase();
@@ -44,9 +40,7 @@ export async function GET(req) {
 
 // POST: crea un proyecto.
 export async function POST(req) {
-  if (!checkPin(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!isAuthenticatedRequest(req)) return unauthorized();
 
   try {
     const body = await req.json();
@@ -80,9 +74,7 @@ export async function POST(req) {
 
 // DELETE: elimina un proyecto por su id (mandado en el body).
 export async function DELETE(req) {
-  if (!checkPin(req)) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!isAuthenticatedRequest(req)) return unauthorized();
 
   const { id } = await req.json().catch(() => ({}));
   if (!id) {

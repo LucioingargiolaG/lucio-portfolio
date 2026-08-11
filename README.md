@@ -38,13 +38,15 @@ Creá un archivo `.env.local` en la raíz:
 
 ```
 MONGODB_URI=mongodb://localhost:27017/lucio-portfolio
-ADMIN_PIN=tu-clave-secreta
+ADMIN_PASSWORD=una-contraseña-fuerte-y-larga
+AUTH_SECRET=un-secreto-aleatorio-para-firmar-sesiones
 ```
 
 | Variable | Descripción |
 | --- | --- |
 | `MONGODB_URI` | URI de conexión a MongoDB |
-| `ADMIN_PIN` | Código de acceso del panel privado |
+| `ADMIN_PASSWORD` | Contraseña del panel privado (se compara en el servidor, en tiempo constante) |
+| `AUTH_SECRET` | Secreto con el que se firman las sesiones (cookie HttpOnly); si cambia, se invalidan las sesiones activas |
 
 > 🔒 **Seguridad:** el panel de administración es privado y no está documentado en este README. `.env.local` está en `.gitignore`, así que no se sube al repositorio.
 
@@ -60,7 +62,9 @@ lucio-portfolio/
 │   │   └── AdminPanel.js       →   login + crear/eliminar proyectos
 │   ├── api/
 │   │   └── admin/
-│   │       ├── verify/route.js     → valida el ADMIN_PIN
+│   │       ├── verify/route.js     → login (valida ADMIN_PASSWORD + rate limit)
+│   │       ├── me/route.js         → ¿sesión válida?
+│   │       ├── logout/route.js     → borra la cookie de sesión
 │   │       └── projects/route.js   → GET/POST/DELETE de proyectos
 │   ├── components/             → todos los componentes de UI
 │   ├── context/                → contextos globales
@@ -73,7 +77,9 @@ lucio-portfolio/
 │   ├── projects/page.js        → página /projects (lista completa)
 │   └── portfolio-digital/page.js → placeholder (ComingSoon)
 ├── lib/
-│   └── mongodb.js              → conexión a MongoDB (con cache)
+│   ├── mongodb.js              → conexión a MongoDB (con cache)
+│   ├── auth.js                 → sesiones firmadas + comparación en tiempo constante
+│   └── rateLimit.js            → anti fuerza bruta (login)
 ├── models/
 │   └── Project.js              → esquema Mongoose de los proyectos
 ├── scripts/
@@ -130,7 +136,7 @@ En la home se muestran en un carrusel 3D rotatorio y en `/projects` como tarjeta
 El proyecto está pensado para desplegarse en [Vercel](https://vercel.com):
 
 1. Importá el repositorio en Vercel.
-2. Agregá las variables de entorno (`MONGODB_URI`, `ADMIN_PIN`) en *Settings → Environment Variables*.
+2. Agregá las variables de entorno (`MONGODB_URI`, `ADMIN_PASSWORD`, `AUTH_SECRET`) en *Settings → Environment Variables*.
 3. Deploy.
 
 > Si MongoDB es local, no será accesible desde Vercel. Para producción conviene usar **MongoDB Atlas** (base en la nube) y apuntar `MONGODB_URI` a ese clúster.

@@ -12,7 +12,7 @@ Tu proyecto tiene 3 partes que, en producción, viven en **3 lugares distintos**
 | --- | --- | --- |
 | El código/sitio (HTML, React, rutas) | `localhost:3000` | **Vercel** (servidores) |
 | Los datos (proyectos del portfolio) | MongoDB en tu PC | **MongoDB Atlas** (nube) |
-| Tus secretos (`ADMIN_PIN`, URI) | `.env.local` | Variables de entorno en Vercel |
+| Tus secretos (`ADMIN_PASSWORD`, `AUTH_SECRET`, URI) | `.env.local` | Variables de entorno en Vercel |
 
 En desarrollo los 3 están juntos en tu PC. Al desplegar se separan, y cada uno cumple su rol.
 
@@ -98,10 +98,11 @@ Después del deploy, en **Project → Settings → Environment Variables** → a
 
 ```
 MONGODB_URI = mongodb+srv://admin:TUCLAVE@cluster0.xxxxx.mongodb.net/lucio-portfolio
-ADMIN_PIN   = <una clave fuerte y nueva>
+ADMIN_PASSWORD = <una contraseña fuerte y nueva>
+AUTH_SECRET   = <un secreto aleatorio largo>
 ```
 
-Al agregarlas, Vercel te ofrece redeployear: aceptá (**Redeploy**). Esto reemplaza a tu `.env.local` local. **Importante:** elegí un PIN fuerte que no esté publicado en ningún lado.
+Al agregarlas, Vercel te ofrece redeployear: aceptá (**Redeploy**). Esto reemplaza a tu `.env.local` local. **Importante:** elegí contraseñas/secretos fuertes que no estén publicados en ningún lado (`ADMIN_PASSWORD` es tu llave de acceso al panel; `AUTH_SECRET` firma las sesiones, si lo cambiás se desloguea a todos).
 
 ### 5. Probar
 

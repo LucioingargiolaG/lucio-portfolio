@@ -2,20 +2,22 @@
  * Panel de administración privado (client component).
  *
  * Flujo:
- *  1. Si hay un PIN en sessionStorage → se autentica y carga proyectos.
- *  2. Si no → muestra un formulario de login que verifica el PIN contra
- *     /api/admin/verify. Si es correcto, guarda el PIN en sessionStorage.
+ *  1. Al montar consulta /api/admin/me con la cookie de sesión: si es
+ *     válida, entra directo y carga proyectos.
+ *  2. Si no → muestra un formulario de login que verifica la contraseña
+ *     contra /api/admin/verify (el servidor firma una cookie HttpOnly).
  *  3. Ya autenticado: permite crear proyectos (formulario) y eliminarlos
- *     (lista). Todas las llamadas mandan el PIN en el header 'x-admin-pin'.
+ *     (lista). La sesión viaja sola en la cookie; la contraseña nunca se
+ *     guarda en el navegador ni se reenvía.
  *
  * Para acceder: escribir "admin" en cualquier parte del sitio → candado
- * flotante → ingresar el PIN → /admin.
+ * flotante → ingresar la contraseña → /admin.
  */
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Plus, Trash2, RefreshCw, Save, FolderPlus, LogOut } from 'lucide-react';
+import { Lock, Plus, Trash2, RefreshCw, Save, FolderPlus, LogOut, KeyRound } from 'lucide-react';
 
 // Categorías permitidas para los proyectos (se muestran en el select).
 const categories = [
@@ -37,18 +39,14 @@ const emptyForm = {
 
 export default function AdminPanel() {
   const router = useRouter();
-  const [pin, setPin] = useState(''); // PIN tipeado en el login
+  const [password, setPassword] = useState(''); // contraseña tipeada en el login
   const [authed, setAuthed] = useState(false); // ¿está logueado?
   const [loading, setLoading] = useState(false); // indicador de "haciendo algo"
   const [message, setMessage] = useState(null); // toast de éxito/error
   const [projects, setProjects] = useState([]); // proyectos guardados
   const [form, setForm] = useState(emptyForm); // valores del formulario
-
-  // Lee el PIN guardado en sessionStorage (persiste en la pestaña).
-  const getPin = () => {
-    if (typeof window === 'undefined') return null;
-    return sessionStorage.getItem('admin_pin');
-  };
+  const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' }); // cambio de contraseña
+  const [pwLoading, setPwLoading] = useState(false); // guardando contraseña
 
   // Muestra un mensaje temporal (se borra solo a los 4 segundos).
   const setMessageState = (type, text) => {
@@ -56,15 +54,11 @@ export default function AdminPanel() {
     setTimeout(() => setMessage(null), 4000);
   };
 
-  // Carga la lista de proyectos desde la API.
+  // Carga la lista de proyectos desde la API (la sesión viaja en la cookie).
   const loadProjects = useCallback(async () => {
-    const storedPin = getPin();
-    if (!storedPin) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/projects', {
-        headers: { 'x-admin-pin': storedPin },
-      });
+      const res = await fetch('/api/admin/projects');
       const data = await res.json();
       if (res.ok) {
         setProjects(data.projects ?? []);
@@ -78,15 +72,24 @@ export default function AdminPanel() {
     }
   }, []);
 
-  // Al montar: si ya tenemos PIN guardado, entramos directo y cargamos.
+  // Al montar: si hay sesión válida (cookie), entramos directo y cargamos.
   useEffect(() => {
-    if (getPin()) {
-      setAuthed(true);
-      loadProjects();
-    }
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/admin/me');
+        if (res.ok) {
+          setAuthed(true);
+          loadProjects();
+        }
+      } catch {
+        // sin sesión: nos quedamos en el login
+      }
+    };
+    checkSession();
   }, [loadProjects]);
 
-  // Verifica el PIN contra la API. Si es válido lo guarda en sessionStorage.
+  // Verifica la contraseña contra la API. Si es correcta, el servidor firma
+  // una cookie HttpOnly (la sesión). No guardamos nada en el navegador.
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -94,16 +97,15 @@ export default function AdminPanel() {
       const res = await fetch('/api/admin/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ password }),
       });
       const data = await res.json();
       if (res.ok) {
-        sessionStorage.setItem('admin_pin', pin);
         setAuthed(true);
-        setPin('');
+        setPassword('');
         loadProjects();
       } else {
-        setMessageState('error', data.error ?? 'Código incorrecto');
+        setMessageState('error', data.error ?? 'Contraseña incorrecta');
       }
     } catch (err) {
       setMessageState('error', err.message);
@@ -112,9 +114,13 @@ export default function AdminPanel() {
     }
   };
 
-  // Borra el PIN de sessionStorage y vuelve al estado "no autenticado".
-  const handleLogout = () => {
-    sessionStorage.removeItem('admin_pin');
+  // Cierra la sesión en el servidor (borra la cookie) y vuelve al login.
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+    } catch {
+      // si falla la red, igual limpiamos el estado local
+    }
     setAuthed(false);
     setProjects([]);
     setForm(emptyForm);
@@ -132,10 +138,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/projects', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-pin': getPin(),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
       const data = await res.json();
@@ -160,10 +163,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/projects', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-pin': getPin(),
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       });
       const data = await res.json();
@@ -177,6 +177,41 @@ export default function AdminPanel() {
       setMessageState('error', err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Cambia la contraseña del admin (se guarda hasheada en MongoDB).
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (pwForm.next !== pwForm.confirm) {
+      setMessageState('error', 'La nueva contraseña no coincide');
+      return;
+    }
+    if (pwForm.next.length < 8) {
+      setMessageState('error', 'La nueva contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+    setPwLoading(true);
+    try {
+      const res = await fetch('/api/admin/password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: pwForm.current,
+          newPassword: pwForm.next,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPwForm({ current: '', next: '', confirm: '' });
+        setMessageState('success', 'Contraseña actualizada');
+      } else {
+        setMessageState('error', data.error ?? 'Error al cambiar la contraseña');
+      }
+    } catch (err) {
+      setMessageState('error', err.message);
+    } finally {
+      setPwLoading(false);
     }
   };
 
@@ -228,7 +263,7 @@ export default function AdminPanel() {
 
         {/* Vista según estado: login o panel */}
         {!authed ? (
-          // -------- LOGIN: formulario de PIN --------
+          // -------- LOGIN: formulario de contraseña --------
           <form
             onSubmit={handleLogin}
             className="mt-10 max-w-md mx-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-8 shadow-xl"
@@ -236,13 +271,13 @@ export default function AdminPanel() {
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-10 text-[var(--accent)]">
               <Lock size={26} />
             </div>
-            <label className={labelClass}>Código de acceso</label>
+            <label className={labelClass}>Contraseña</label>
             <input
               type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="Ingresá tu código"
+              placeholder="Ingresá tu contraseña"
               autoFocus
               className={inputClass}
             />
@@ -430,6 +465,74 @@ export default function AdminPanel() {
                 </ul>
               )}
             </div>
+
+            {/* Cambiar contraseña */}
+            <form
+              onSubmit={handleChangePassword}
+              className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-6 md:p-8 shadow-xl"
+            >
+              <h2 className="flex items-center gap-2 text-lg font-bold text-[var(--ink-strong)]">
+                <KeyRound size={18} className="text-[var(--accent)]" />
+                Cambiar contraseña
+              </h2>
+              <p className="mt-2 text-xs text-[var(--ink-faint)]">
+                Se guarda hasheada en la base de datos. Las sesiones ya
+                abiertas siguen válidas hasta que expiren.
+              </p>
+
+              <div className="mt-6 grid gap-5 md:grid-cols-3">
+                <div>
+                  <label className={labelClass}>Contraseña actual *</label>
+                  <input
+                    type="password"
+                    value={pwForm.current}
+                    onChange={(e) =>
+                      setPwForm((prev) => ({ ...prev, current: e.target.value }))
+                    }
+                    required
+                    autoComplete="current-password"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Nueva contraseña *</label>
+                  <input
+                    type="password"
+                    value={pwForm.next}
+                    onChange={(e) =>
+                      setPwForm((prev) => ({ ...prev, next: e.target.value }))
+                    }
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Repetir nueva *</label>
+                  <input
+                    type="password"
+                    value={pwForm.confirm}
+                    onChange={(e) =>
+                      setPwForm((prev) => ({ ...prev, confirm: e.target.value }))
+                    }
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={pwLoading}
+                className="mt-6 inline-flex items-center gap-2 py-3 px-6 rounded-full font-bold text-black bg-accent hover:bg-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <KeyRound size={16} />
+                {pwLoading ? 'Guardando…' : 'Actualizar contraseña'}
+              </button>
+            </form>
           </div>
         )}
       </div>

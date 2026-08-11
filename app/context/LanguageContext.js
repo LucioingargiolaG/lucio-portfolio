@@ -38,7 +38,7 @@ const translations = {
       role: "Front End Developer",
       available: "Disponible para proyectos",
       description:
-        "Desarrollador Front-End & Creador de Contenido enfocado en crear experiencias digitales modernas y funcionales.",
+        "Estudiante de la Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas. Front-End Developer & Estratega de Marketing Digital.",
       descStrong1: "Desarrollo de Aplicaciones Informáticas",
       descStrong2: "Front End Developer",
       highlights: [
@@ -327,7 +327,7 @@ const translations = {
       role: "Front End Developer",
       available: "Available for projects",
       description:
-        "Front-End Developer & Content Creator focused on creating modern and functional digital experiences.",
+        "Student of the University Technician in IT Application Development. Front-End Developer & Digital Marketing Strategist.",
       descStrong1: "Information Technology",
       descStrong2: "Front End Developer",
       highlights: [

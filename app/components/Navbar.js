@@ -212,7 +212,19 @@ export default function Navbar() {
   const isDark = theme === 'dark';
 
   return (
-    <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-6xl md:w-auto">
+    <>
+      {/* Backdrop a nivel de pantalla: cerrar tocando fuera del menú.
+          Va FUERA del header porque el header tiene transform (-translate-x-1/2)
+          y eso haría que "fixed" se posicione respecto al header, no a la pantalla. */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-6xl md:w-auto">
       <nav className="bg-[var(--bg-nav)] backdrop-blur-md border-[var(--line-soft)] rounded-full px-6 py-3 flex items-center justify-between md:justify-center gap-8 shadow-lg shadow-black/40">
         {/* Logo */}
         <a
@@ -272,15 +284,6 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Backdrop invisible: cerrar tocando fuera del menú */}
-      {mobileOpen && (
-        <div
-          className="md:hidden fixed inset-0 -z-10"
-          onClick={() => setMobileOpen(false)}
-          aria-hidden="true"
-        />
-      )}
-
       {/* Menú móvil desplegable (pegado a la barra, sin espacio) */}
       {mobileOpen && (
         <div className="md:hidden absolute top-full left-1/2 -translate-x-1/2 w-full bg-[var(--bg-nav-solid)] backdrop-blur-md border-[var(--line-soft)] rounded-3xl p-4 space-y-1 shadow-xl shadow-black/40">
@@ -308,6 +311,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+      </header>
+    </>
   );
 }
