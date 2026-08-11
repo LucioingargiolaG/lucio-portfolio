@@ -250,21 +250,40 @@ export default function Navbar() {
           <Controls />
         </div>
 
-        {/* Botón hamburguesa (móvil) */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="md:hidden text-[var(--ink-strong)] cursor-pointer p-1 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
-          aria-label="Toggle menu"
-          aria-expanded={mobileOpen}
-        >
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Tema + botón hamburguesa (móvil) */}
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="text-[var(--ink-soft)] hover:text-[var(--ink-strong)] cursor-pointer p-1.5 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-[var(--ink-strong)] cursor-pointer p-1 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
+            aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </nav>
 
-      {/* Menú móvil desplegable */}
+      {/* Backdrop invisible: cerrar tocando fuera del menú */}
       {mobileOpen && (
-        <div className="md:hidden fixed top-20 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] bg-[var(--bg-nav-solid)] backdrop-blur-md border-[var(--line-soft)] rounded-3xl p-4 space-y-1 shadow-xl shadow-black/40">
+        <div
+          className="md:hidden fixed inset-0 -z-10"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Menú móvil desplegable (pegado a la barra, sin espacio) */}
+      {mobileOpen && (
+        <div className="md:hidden absolute top-full left-1/2 -translate-x-1/2 w-full bg-[var(--bg-nav-solid)] backdrop-blur-md border-[var(--line-soft)] rounded-3xl p-4 space-y-1 shadow-xl shadow-black/40">
           {navLinks.map((link) => {
             const isActive = active === link.key;
             return (
@@ -285,17 +304,7 @@ export default function Navbar() {
           {/* Controles dentro del menú móvil */}
           <div className="flex items-center justify-between pt-3">
             <ModeSwitch />
-            <div className="flex items-center gap-3">
-              <LanguageSwitch uid="mobile" />
-              <button
-                type="button"
-                onClick={toggleTheme}
-                className="text-[var(--ink-soft)] hover:text-[var(--ink-strong)] cursor-pointer rounded-full p-2 transition-all duration-300 hover:bg-[var(--bg-glass)]"
-                aria-label="Toggle theme"
-              >
-                {isDark ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
-            </div>
+            <LanguageSwitch uid="mobile" />
           </div>
         </div>
       )}
