@@ -120,7 +120,11 @@ export default function Footer() {
                 >
                   <SiInstagram size={18} />
                 </a>
-                <a href="mailto:lucio.ingargiola@example.com" aria-label="Email" className={socialClass}>
+                <a
+                  href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}`}
+                  aria-label="Email"
+                  className={socialClass}
+                >
                   <Mail size={18} />
                 </a>
               </div>
@@ -133,11 +137,11 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href="mailto:lucio.ingargiola@example.com"
+                  href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}`}
                   className="flex items-center gap-3 text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--accent)]"
                 >
                   <Mail size={16} className="shrink-0 text-[var(--accent)]" />
-                  lucio.ingargiola@example.com
+                  {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}
                 </a>
               </li>
               {/* Ubicación */}
