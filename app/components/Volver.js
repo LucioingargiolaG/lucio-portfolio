@@ -9,7 +9,7 @@
 import { ArrowUp } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
 
-export default function Volver({ href = '#hero' }) {
+export default function Volver({ href = '#main' }) {
   const { t } = useLanguage();
 
   return (

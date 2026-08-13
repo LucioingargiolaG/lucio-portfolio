@@ -2,7 +2,7 @@
  * Barra de navegación principal (fija, flotante arriba).
  *
  * Responsabilidades:
- *  - Navegación por anclas a las secciones de la home (#hero, #projects...).
+ *  - Navegación por anclas a las secciones de la home (#main, #projects...).
  *  - Switch WEB / IA (cambia el modo de la página).
  *  - Switch de idioma ES / EN (con píldora animada) + botón de tema.
  *  - Menú móvil (hamburguesa) con las mismas opciones.
@@ -228,9 +228,9 @@ export default function Navbar() {
       <nav className="bg-[var(--bg-nav)] backdrop-blur-md border-[var(--line-soft)] rounded-full px-6 py-3 flex items-center justify-between md:justify-center gap-8 shadow-lg shadow-black/40">
         {/* Logo */}
         <a
-          href="#hero"
+          href="#main"
           className="text-[var(--ink-strong)] font-bold whitespace-nowrap transition-all duration-300 hover:opacity-80 cursor-pointer"
-          onClick={(e) => handleNavClick(e, '#hero')}
+          onClick={(e) => handleNavClick(e, '#main')}
         >
           <Logo />
         </a>

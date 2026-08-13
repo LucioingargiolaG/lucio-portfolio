@@ -81,8 +81,8 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-bold text-[var(--ink-strong)]">
               <a
-                href="#hero"
-                onClick={(e) => handleNavClick(e, '#hero')}
+                href="#main"
+                onClick={(e) => handleNavClick(e, '#main')}
                 className="transition-all duration-300 hover:opacity-80 cursor-pointer"
               >
                 <Logo />
@@ -193,8 +193,8 @@ export default function Footer() {
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
             {/* Volver arriba */}
             <a
-              href="#hero"
-              onClick={(e) => handleNavClick(e, '#hero')}
+              href="#main"
+              onClick={(e) => handleNavClick(e, '#main')}
               className="link-pretty group inline-flex items-center gap-2.5 text-xs font-semibold text-[var(--ink-soft)] transition-all duration-300 hover:text-[var(--accent)] cursor-pointer"
             >
               <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[var(--line)] bg-[var(--bg-card)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-accent-50 group-hover:shadow-accent-sm">
