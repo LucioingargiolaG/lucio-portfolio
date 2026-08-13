@@ -33,7 +33,7 @@ export default function Starfield() {
     return Array.from({ length: isLight ? 100 : 140 }, (_, i) => {
       const base = {
         left: rand(0, 100), // posición horizontal %
-        size: isLight ? rand(1, 2.2) : rand(1.2, 3), // tamaño en px
+        size: isLight ? rand(1.8, 3) : rand(1.2, 3), // tamaño en px
         twinkleDuration: rand(1.5, 4), // velocidad de parpadeo
         twinkleDelay: rand(0, 3), // retraso del parpadeo
         accent: isLight ? i % 3 !== 0 : i % 2 === 0, // ¿estrella "acento"?
@@ -77,17 +77,17 @@ export default function Starfield() {
       {/* Estrellas: ascienden (dark) o flotan (light) */}
       {stars.map((star, i) => {
         // Combinación de animaciones CSS (definidas en globals.css):
-        //  - dark:  star-rise (subir) + star-twinkle (parpadear)
-        //  - light: star-bob (flotar) + star-twinkle (parpadear)
+        //  - dark:  star-rise (subir) + star-twinkle (parpadear fuerte)
+        //  - light: star-bob (flotar) + star-twinkle-soft (sin apagarse)
         const animation = isLight
-          ? `star-bob ${star.bobDuration}s ease-in-out ${star.bobDelay}s infinite, star-twinkle ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`
+          ? `star-bob ${star.bobDuration}s ease-in-out ${star.bobDelay}s infinite, star-twinkle-soft ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`
           : `star-rise ${star.riseDuration}s linear ${star.riseDelay}s infinite, star-twinkle ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`;
 
         // Color según tema y si la estrella es "acento".
         const colorClass = isLight
           ? star.accent
-            ? 'bg-amber-300/80'
-            : 'bg-white/60'
+            ? 'bg-amber-400/90'
+            : 'bg-white/80'
           : star.accent
             ? i % 3 === 0
               ? 'bg-green-400/80'
@@ -97,8 +97,8 @@ export default function Starfield() {
         // Brillo (box-shadow) según el color.
         const glow = isLight
           ? star.accent
-            ? '0 0 6px rgba(251,191,36,0.8)'
-            : '0 0 4px rgba(255,255,255,0.4)'
+            ? '0 0 8px rgba(251,191,36,0.95)'
+            : '0 0 6px rgba(255,255,255,0.7)'
           : star.accent
             ? i % 3 === 0
               ? '0 0 6px rgba(74,222,128,0.9)'

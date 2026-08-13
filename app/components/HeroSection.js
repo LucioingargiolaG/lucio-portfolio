@@ -73,7 +73,7 @@ export default function HeroSection() {
 
   // Clase compartida por los ítems del menú de CV.
   const cvItemClass =
-    'flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-[var(--ink-soft)] hover:text-[var(--neon)] hover:bg-[var(--bg-glass)] transition-colors cursor-pointer';
+    'link-pretty flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-[var(--ink-soft)] hover:text-[var(--neon)] hover:bg-[var(--bg-glass)] transition-colors cursor-pointer';
 
   return (
     <section
@@ -98,7 +98,7 @@ export default function HeroSection() {
           {/* Foto circular (next/image con prioridad = carga temprana) */}
           <div className="relative rounded-full p-1 border border-[var(--neon-line)] bg-[var(--bg-card)]/60 backdrop-blur-sm">
             <Image
-              src="/profile.jpg"
+              src="/profile.webp"
               alt={t.hero.title}
               width={192}
               height={192}
@@ -231,7 +231,7 @@ export default function HeroSection() {
           {/* Link secundario a la página /projects */}
           <Link
             href="/projects"
-            className="group flex items-center gap-2 text-sm text-[var(--ink-soft)] hover:text-[var(--neon)] transition-colors duration-300"
+            className="link-pretty group flex items-center gap-2 text-sm text-[var(--ink-soft)] hover:text-[var(--neon)] transition-colors duration-300"
           >
             {t.hero.viewProjects}
             <ArrowRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />

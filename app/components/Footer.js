@@ -24,6 +24,7 @@ import {
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
 import { LanguageSwitch } from './Navbar';
+import Logo from './Logo';
 
 // Ícono de LinkedIn en SVG inline (no existe en lucide-react).
 function LinkedinIcon({ size = 18 }) {
@@ -67,7 +68,7 @@ export default function Footer() {
 
   // Clases reutilizables para los botones de redes y títulos de columna.
   const socialClass =
-    'inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] text-[var(--ink-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-50 hover:text-accent';
+    'inline-flex items-center justify-center w-10 h-10 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] text-[var(--ink-soft)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-50 hover:text-accent hover:shadow-[0_0_20px_var(--neon-glow-soft)]';
 
   const colTitleClass =
     'font-mono mb-4 text-xs font-bold uppercase tracking-widest text-[var(--ink-strong)]';
@@ -84,7 +85,7 @@ export default function Footer() {
                 onClick={(e) => handleNavClick(e, '#hero')}
                 className="transition-all duration-300 hover:opacity-80 cursor-pointer"
               >
-                <span className="text-accent">&lt;/&gt;</span> lucio.dev
+                <Logo />
               </a>
             </h3>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--ink-soft)]">
@@ -138,7 +139,7 @@ export default function Footer() {
               <li>
                 <a
                   href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}`}
-                  className="flex items-center gap-3 text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--accent)]"
+                  className="link-pretty flex items-center gap-3 text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--accent)]"
                 >
                   <Mail size={16} className="shrink-0 text-[var(--accent)]" />
                   {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}
@@ -194,7 +195,7 @@ export default function Footer() {
             <a
               href="#hero"
               onClick={(e) => handleNavClick(e, '#hero')}
-              className="group inline-flex items-center gap-2.5 text-xs font-semibold text-[var(--ink-soft)] transition-all duration-300 hover:text-[var(--accent)] cursor-pointer"
+              className="link-pretty group inline-flex items-center gap-2.5 text-xs font-semibold text-[var(--ink-soft)] transition-all duration-300 hover:text-[var(--accent)] cursor-pointer"
             >
               <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-[var(--line)] bg-[var(--bg-card)] transition-all duration-300 group-hover:-translate-y-1 group-hover:border-accent-50 group-hover:shadow-accent-sm">
                 <ArrowUp size={14} />

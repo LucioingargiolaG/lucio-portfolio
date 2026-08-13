@@ -18,10 +18,10 @@ import { motion } from 'framer-motion';
 import { useTheme } from '@/app/context/ThemeProvider';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
+import Logo from './Logo';
 
 // Rutas de navegación. El orden determina cuál se muestra de izquierda a derecha.
 const navLinks = [
-  { key: 'home', href: '#hero' },
   { key: 'projects', href: '#projects' },
   { key: 'howIWork', href: '#how-i-work' },
   { key: 'contact', href: '#contact' },
@@ -232,7 +232,7 @@ export default function Navbar() {
           className="text-[var(--ink-strong)] font-bold whitespace-nowrap transition-all duration-300 hover:opacity-80 cursor-pointer"
           onClick={(e) => handleNavClick(e, '#hero')}
         >
-          <span className="text-accent">&lt;/&gt;</span> lucio.dev
+          <Logo />
         </a>
 
         {/* Enlaces centrales (solo desktop) */}
@@ -244,7 +244,7 @@ export default function Navbar() {
                 key={link.key}
                 href={link.href}
                 onClick={(e) => handleNavClick(e, link.href)}
-                className={`text-sm font-bold transition-all duration-300 cursor-pointer ${
+                className={`link-pretty text-sm font-bold transition-all duration-300 cursor-pointer ${
                   isActive
                     ? 'text-[var(--accent)]'
                     : 'text-[var(--ink-soft)] hover:text-[var(--ink-strong)]'

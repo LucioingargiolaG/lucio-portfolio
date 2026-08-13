@@ -207,6 +207,10 @@ html.light {
 }
 
 body {
+  /* Crea un stacking context en body: el fondo opaco del body (modo claro)
+     queda debajo del Starfield (-z-10) y no lo tapa. Sin esto, las estrellas
+     se pintan detrás del fondo del body y no se ven. */
+  isolation: isolate;
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -357,6 +361,18 @@ p {
   }
 }
 
+/* Modo claro: parpadeo más tenue para que las estrellas ámbar/blancas no se
+   apaguen del todo contra el fondo café (el twinkle fuerte las hace invisibles). */
+@keyframes star-twinkle-soft {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 /* Modo claro: estrellas que flotan suavemente en lugar de ascender */
 @keyframes star-bob {
   0%,
@@ -488,4 +504,27 @@ p {
   .animate-marquee {
     animation: none;
   }
+}
+
+/* Enlace con subrayado deslizante + glow neón al hover */
+.link-pretty {
+  position: relative;
+  text-decoration: none;
+}
+.link-pretty::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 2px;
+  width: 100%;
+  border-radius: 9999px;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow, var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
+.link-pretty:hover::after {
+  transform: scaleX(1);
 }

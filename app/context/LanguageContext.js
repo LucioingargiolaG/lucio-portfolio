@@ -25,10 +25,10 @@ import {
 const translations = {
   es: {
     nav: {
-      home: "Inicio",
+      home: "main",
       howIWork: "Experiencia",
       ai: "IA",
-      projects: "Portfolio",
+      projects: "proyectos",
       contact: "Contacto",
       back: "Volver",
     },
@@ -38,7 +38,7 @@ const translations = {
       role: "Front End Developer",
       available: "Disponible para proyectos",
       description:
-        "Estudiante de la Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas. Front-End Developer & Estratega de Marketing Digital.",
+        "Estudiante de la Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas en Tandil, Buenos Aires. Front-End Developer & Estratega de Marketing Digital.",
       descStrong1: "Desarrollo de Aplicaciones Informáticas",
       descStrong2: "Front End Developer",
       highlights: [
@@ -119,7 +119,7 @@ const translations = {
       carouselDesc:
         "He desarrollado plataformas web y proyectos front-end orientados a rendimiento, estética y escalabilidad.",
       talkSubtitle: "Hablemos",
-      talkText: "Construyamos algo escalable",
+      talkText: "Construyamos algo escalable.",
       namePlaceholder: "Tu Nombre",
       filters: {
         all: "Todos",
@@ -144,7 +144,7 @@ const translations = {
       title: "Marketing",
       titleAccent: "digital",
       description:
-        "Además del desarrollo, me dedico al mundo del contenido audiovisual: edito videos y creo piezas que ayudan a las marcas a conectar con su audiencia.",
+        "Complemento mi perfil técnico con marketing digital y creación de contenido audiovisual. Desarrollo estrategias y edito piezas visuales enfocadas en el crecimiento integral de los proyectos.",
       services: [
         {
           icon: "rocket",
@@ -310,7 +310,7 @@ const translations = {
     footer: {
       downloadCv: "Descargar mi CV técnico",
       navigation: "Navegación",
-      location: "Azul , Buenos Aires, Argentina",
+      location: "Azul, Buenos Aires, Argentina",
       available: "Disponible para proyectos y colaboraciones.",
       backToTop: "Volver arriba",
       rights: "Todos los derechos reservados.",
@@ -322,10 +322,10 @@ const translations = {
   // ---------- Traducciones en inglés ----------
   en: {
     nav: {
-      home: "Home",
+      home: "main",
       howIWork: "Experience",
       ai: "AI",
-      projects: "Portfolio",
+      projects: "projects",
       contact: "Contact",
       back: "Back",
     },
@@ -335,7 +335,7 @@ const translations = {
       role: "Front End Developer",
       available: "Available for projects",
       description:
-        "Student of the University Technician in IT Application Development. Front-End Developer & Digital Marketing Strategist.",
+        "Student of the University Technician in IT Application Development in Tandil, Buenos Aires. Front-End Developer & Digital Marketing Strategist.",
       descStrong1: "Information Technology",
       descStrong2: "Front End Developer",
       highlights: [
@@ -416,7 +416,7 @@ const translations = {
       carouselDesc:
         "I have developed web platforms and front-end projects focused on performance, aesthetics and scalability.",
       talkSubtitle: "Let's talk",
-      talkText: "Let's build something scalable",
+      talkText: "Let's build something scalable.",
       namePlaceholder: "Your Name",
       filters: {
         all: "All",
@@ -441,7 +441,7 @@ const translations = {
       title: "Marketing",
       titleAccent: "digital",
       description:
-        "Beyond development, I also work in the audiovisual content world: I edit videos and create pieces that help brands connect with their audience.",
+        "I complement my technical profile with digital marketing and audiovisual content creation. I develop strategies and edit visual pieces focused on the integral growth of projects.",
       services: [
         {
           icon: "rocket",
