@@ -12,12 +12,19 @@
  */
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useTheme } from '@/app/context/ThemeProvider';
 
 export default function Starfield() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
+
+  // Las estrellas se generan con Math.random, que da valores distintos en el
+  // servidor y en el cliente. Para evitar el error de hidratación, no se
+  // renderizan hasta después del montaje (mounted): así el HTML del servidor
+  // y el primer render del cliente coinciden (sin estrellas).
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   // Genera las estrellas según el tema. `isLight` en las dependencias:
   // si cambia el tema, se regeneran (animaciones y colores acordes).
@@ -65,6 +72,8 @@ export default function Starfield() {
       aria-hidden="true"
       className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-[var(--bg-page)]"
     >
+      {mounted && (
+        <>
       {/* Estrellas: ascienden (dark) o flotan (light) */}
       {stars.map((star, i) => {
         // Combinación de animaciones CSS (definidas en globals.css):
@@ -135,6 +144,8 @@ export default function Starfield() {
           <div className="absolute -top-20 left-[10%] w-72 h-72 rounded-full bg-amber-400/15 blur-3xl animate-[orb-float_26s_ease-in-out_infinite]" />
           <div className="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-orange-400/15 blur-3xl animate-[orb-float_30s_ease-in-out_2s_infinite]" />
           <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-rose-300/15 blur-3xl animate-[orb-float_28s_ease-in-out_1s_infinite]" />
+        </>
+      )}
         </>
       )}
     </div>

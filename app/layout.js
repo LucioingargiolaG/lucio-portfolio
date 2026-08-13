@@ -13,7 +13,12 @@
 // next/font/google descarga y optimiza las fuentes en build-time.
 // Cada fuente se registra como variable CSS (--font-inter, etc.)
 // para poder usarla en globals.css con font-family.
-import { Inter, Space_Grotesk, JetBrains_Mono, Poppins } from "next/font/google";
+import {
+  Inter,
+  Space_Grotesk,
+  JetBrains_Mono,
+  Poppins,
+} from "next/font/google";
 import "./globals.css"; // estilos globales + Tailwind
 import { ThemeProvider } from "./context/ThemeProvider"; // tema dark/light
 import { LanguageProvider } from "./context/LanguageContext"; // idioma es/en
@@ -52,7 +57,7 @@ const poppins = Poppins({
 export const metadata = {
   title: "Lucio Ingargiola | Front End Developer",
   description:
-    "Estudiante de Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
+    "Estudiante de la carrera Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
   keywords: [
     "Lucio Ingargiola",
     "Front End",
