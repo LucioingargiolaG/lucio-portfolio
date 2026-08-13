@@ -283,12 +283,20 @@ const translations = {
       email: "Email",
       name: "Nombre",
       namePlaceholder: "Tu nombre",
+      phone: "Teléfono",
+      phonePlaceholder: "Tu teléfono (opcional)",
       message: "Mensaje",
       messagePlaceholder: "Escribí tu mensaje...",
       send: "Enviar Mensaje",
       sending: "Enviando...",
       success: "¡Mensaje enviado correctamente!",
+      successTitle: "¡Mensaje enviado!",
+      successDesc: "Gracias por escribirme. Te respondo lo antes posible.",
+      sendAnother: "Enviar otro mensaje",
       error: "Hubo un error. Intentá de nuevo.",
+      privacyError:
+        "Necesitás aceptar el consentimiento para poder enviar el mensaje.",
+      privacy: "Acepto que mis datos sean usados para responder esta consulta.",
     },
     recruitment: {
       badge: "Vista para Reclutamiento e IA",
@@ -572,12 +580,22 @@ const translations = {
       email: "Email",
       name: "Name",
       namePlaceholder: "Your name",
+      phone: "Phone",
+      phonePlaceholder: "Your phone (optional)",
       message: "Message",
       messagePlaceholder: "Write your message...",
       send: "Send Message",
       sending: "Sending...",
       success: "Message sent successfully!",
+      successTitle: "Message sent!",
+      successDesc:
+        "Thanks for reaching out. I'll get back to you as soon as possible.",
+      sendAnother: "Send another message",
       error: "There was an error. Please try again.",
+      privacyError:
+        "You must accept the consent to be able to send the message.",
+      privacy:
+        "I agree that my data may be used to respond to this inquiry.",
     },
     recruitment: {
       badge: "Recruitment & AI View",

@@ -13,7 +13,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { useLanguage } from "@/app/context/LanguageContext";
 import Volver from "./Volver";
@@ -27,11 +28,13 @@ const EMAILJS_PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 export default function ContactSection() {
   const { t } = useLanguage();
 
-  // Estado del formulario (nombre, email, mensaje).
+  // Estado del formulario (nombre, email, teléfono, mensaje y consentimiento).
   const [formState, setFormState] = useState({
     name: "",
     email: "",
+    phone: "",
     message: "",
+    privacy: false,
   });
   // Estado de envío: null | 'sending' | 'success' | 'error'
   const [status, setStatus] = useState(null);
@@ -40,12 +43,19 @@ export default function ContactSection() {
 
   // Actualiza el campo tocado (usa el atributo `name` del input).
   const handleChange = (e) => {
-    setFormState((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const value =
+      e.target.type === "checkbox" ? e.target.checked : e.target.value;
+    setFormState((prev) => ({ ...prev, [e.target.name]: value }));
   };
 
   // Envía el formulario vía EmailJS (sin backend).
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formState.privacy) {
+      setStatus("error");
+      setErrorMsg(t.contact.privacyError);
+      return;
+    }
     setStatus("sending");
     setErrorMsg(null);
     try {
@@ -58,26 +68,36 @@ export default function ContactSection() {
         {
           from_name: formState.name,
           from_email: formState.email,
+          from_phone: formState.phone,
           message: formState.message,
+          privacy: formState.privacy ? "Aceptado" : "No aceptado",
         },
         EMAILJS_PUBLIC_KEY,
       );
       setStatus("success");
-      setFormState({ name: "", email: "", message: "" }); // limpia el form
-      setTimeout(() => setStatus(null), 3000);
+      // Limpia el form para un próximo mensaje.
+      setFormState({ name: "", email: "", phone: "", message: "", privacy: false });
     } catch (err) {
       setStatus("error");
       setErrorMsg(err.text || err.message);
       setTimeout(() => {
         setStatus(null);
         setErrorMsg(null);
-      }, 5000);
+      }, 8000);
     }
+  };
+
+  // Vuelve a mostrar el formulario después de un envío exitoso.
+  const resetForm = () => {
+    setStatus(null);
+    setErrorMsg(null);
   };
 
   // Clase compartida para los inputs del formulario.
   const inputClass =
-    "w-full px-4 py-3 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] text-sm text-[var(--ink-strong)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:border-accent transition-colors";
+    "w-full px-4 py-3 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] text-sm text-[var(--ink-strong)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 transition-all";
+  const labelClass =
+    "block text-xs font-semibold uppercase tracking-wider mb-2 text-[var(--ink-soft)]";
 
   return (
     <section
@@ -255,71 +275,132 @@ export default function ContactSection() {
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, delay: 0.3 }}
             onSubmit={handleSubmit}
-            className="space-y-5"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-5"
           >
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-[var(--ink-soft)]">
-                {t.contact.name}
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formState.name}
-                onChange={handleChange}
-                required
-                placeholder={t.contact.namePlaceholder}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-[var(--ink-soft)]">
-                {t.contact.email}
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formState.email}
-                onChange={handleChange}
-                required
-                placeholder="email@example.com"
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-[var(--ink-soft)]">
-                {t.contact.message}
-              </label>
-              <textarea
-                name="message"
-                value={formState.message}
-                onChange={handleChange}
-                required
-                rows={5}
-                placeholder={t.contact.messagePlaceholder}
-                className={`${inputClass} resize-none`}
-              />
-            </div>
+            {status === "success" ? (
+              /* Pantalla de éxito: reemplaza el formulario */
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="py-8 text-center"
+              >
+                <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+                  <CheckCircle2 size={32} />
+                </div>
+                <h3 className="mt-5 text-xl font-bold text-[var(--ink-strong)]">
+                  {t.contact.successTitle}
+                </h3>
+                <p className="mt-2 text-sm text-[var(--ink-soft)]">
+                  {t.contact.successDesc}
+                </p>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="mt-6 inline-flex items-center gap-2 py-2.5 px-5 rounded-full text-sm font-semibold border border-[var(--line)] text-[var(--ink-soft)] hover:text-[var(--ink-strong)] hover:border-accent transition-all duration-300 cursor-pointer"
+                >
+                  {t.contact.sendAnother}
+                </button>
+              </motion.div>
+            ) : (
+              <>
+                <div>
+                  <label className={labelClass}>{t.contact.name} *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formState.name}
+                    onChange={handleChange}
+                    required
+                    placeholder={t.contact.namePlaceholder}
+                    className={inputClass}
+                  />
+                </div>
 
-            {/* Botón de envío (texto cambia según estado) */}
-            <button
-              type="submit"
-              disabled={status === "sending"}
-              className="w-full py-3.5 rounded-full font-semibold text-black bg-accent hover:bg-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {status === "sending"
-                ? t.contact.sending
-                : status === "success"
-                  ? "✓ " + t.contact.success
-                  : status === "error"
-                    ? "✕ " + t.contact.error
-                    : t.contact.send}
-            </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className={labelClass}>{t.contact.email} *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formState.email}
+                      onChange={handleChange}
+                      required
+                      placeholder="email@example.com"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>{t.contact.phone}</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formState.phone}
+                      onChange={handleChange}
+                      placeholder={t.contact.phonePlaceholder}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
 
-            {/* Error real de Resend: aparece para que el dueño sepa qué pasó */}
-            {status === "error" && errorMsg && (
-              <p className="text-xs text-red-400 text-center break-words">
-                {errorMsg}
-              </p>
+                <div>
+                  <label className={labelClass}>{t.contact.message} *</label>
+                  <textarea
+                    name="message"
+                    value={formState.message}
+                    onChange={handleChange}
+                    required
+                    rows={5}
+                    placeholder={t.contact.messagePlaceholder}
+                    className={`${inputClass} resize-none`}
+                  />
+                </div>
+
+                {/* Consentimiento de privacidad */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="privacy"
+                    checked={formState.privacy}
+                    onChange={handleChange}
+                    required
+                    className="mt-0.5 w-4 h-4 rounded accent-[var(--accent)] cursor-pointer"
+                  />
+                  <span className="text-xs text-[var(--ink-soft)] leading-relaxed">
+                    {t.contact.privacy}
+                  </span>
+                </label>
+
+                {/* Botón de envío (estados: idle / enviando) */}
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  className="w-full py-3.5 rounded-full font-semibold text-black bg-accent hover:bg-accent-strong transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent-lg disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+                >
+                  {status === "sending" ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" />
+                      {t.contact.sending}
+                    </>
+                  ) : (
+                    t.contact.send
+                  )}
+                </button>
+
+                {/* Error real (colores rojos, aparece debajo del botón) */}
+                <AnimatePresence>
+                  {status === "error" && errorMsg && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-xs text-red-400 text-center break-words bg-red-500/10 border border-red-400/20 rounded-lg px-3 py-2"
+                    >
+                      {errorMsg}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </>
             )}
           </motion.form>
         </div>
