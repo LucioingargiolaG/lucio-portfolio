@@ -55,6 +55,7 @@ const poppins = Poppins({
 
 // Metadatos globales del sitio (SEO y compartir en redes).
 export const metadata = {
+  metadataBase: new URL("https://lucio-portfolio-theta.vercel.app"),
   title: "Lucio Ingargiola | Front End Developer",
   description:
     "Estudiante de la carrera Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
