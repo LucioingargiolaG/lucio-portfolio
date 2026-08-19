@@ -20,7 +20,7 @@ import {
   SiHtml5,
   SiTailwindcss,
   SiMongodb,
-} from 'react-icons/si';
+} from 'react-icons/si/index';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
 import { LanguageSwitch } from './Navbar';

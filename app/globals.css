@@ -104,96 +104,97 @@
 }
 
 /* Sobrescribe las variables cuando <html> tiene la clase .light
-   (el ThemeProvider la agrega/quita dinámicamente). */
+   (el ThemeProvider la agrega/quita dinámicamente).
+   Tema cálido estético: fondos café/negro con acentos ámbar dorado. */
 html.light {
-  --bg-page: radial-gradient(at 15% 0%, rgba(245, 158, 11, 0.18), transparent 55%),
-    radial-gradient(at 85% 10%, rgba(239, 68, 68, 0.12), transparent 55%),
-    radial-gradient(at 8% 85%, rgba(217, 119, 6, 0.16), transparent 55%),
-    linear-gradient(135deg, #1a130c 0%, #17110c 45%, #1c150d 75%, #140f09 100%);
-  --bg-section: #16110b;
-  --bg-section-alt: #1c1510;
+  --bg-page: radial-gradient(at 12% 0%, rgba(251, 191, 36, 0.12), transparent 50%),
+    radial-gradient(at 88% 8%, rgba(249, 115, 22, 0.08), transparent 50%),
+    radial-gradient(at 5% 90%, rgba(217, 119, 6, 0.1), transparent 50%),
+    linear-gradient(160deg, #12100b 0%, #15110c 30%, #18130e 60%, #0f0d08 100%);
+  --bg-section: #13110a;
+  --bg-section-alt: #1a1510;
   --bg-section-glass: radial-gradient(
       120% 60% at 50% 0%,
-      rgba(251, 191, 36, 0.06),
+      rgba(251, 191, 36, 0.04),
       transparent 60%
     ),
     linear-gradient(
       180deg,
-      rgba(26, 19, 12, 0.5),
+      rgba(20, 16, 10, 0.6),
       transparent 30%,
       transparent 70%,
-      rgba(26, 19, 12, 0.5)
+      rgba(20, 16, 10, 0.6)
     );
   --bg-section-alt-glass: radial-gradient(
       120% 60% at 50% 100%,
-      rgba(249, 115, 22, 0.06),
+      rgba(249, 115, 22, 0.04),
       transparent 60%
     ),
     linear-gradient(
       180deg,
-      rgba(26, 19, 12, 0.5),
+      rgba(20, 16, 10, 0.6),
       transparent 30%,
       transparent 70%,
-      rgba(26, 19, 12, 0.5)
+      rgba(20, 16, 10, 0.6)
     );
-  --bg-card: linear-gradient(160deg, #241b12 0%, #20160d 55%, #1b120a 100%);
-  --bg-nav: rgba(22, 17, 11, 0.55);
-  --bg-nav-solid: rgba(22, 17, 11, 0.92);
-  --bg-pill: rgba(32, 25, 18, 0.9);
-  --bg-glass: rgba(245, 158, 11, 0.08);
+  --bg-card: linear-gradient(160deg, #1e1710 0%, #1a140d 55%, #16100a 100%);
+  --bg-nav: rgba(18, 14, 9, 0.6);
+  --bg-nav-solid: rgba(18, 14, 9, 0.94);
+  --bg-pill: rgba(28, 22, 14, 0.9);
+  --bg-glass: rgba(245, 158, 11, 0.06);
 
-  --ink-strong: #fdf1e0;
-  --ink: #f3e4cd;
-  --ink-soft: #cdb493;
-  --ink-muted: #a98f6d;
-  --ink-faint: #7c6548;
+  --ink-strong: #f5e6d0;
+  --ink: #e8d5b8;
+  --ink-soft: #c4a882;
+  --ink-muted: #9a7d5c;
+  --ink-faint: #6d5640;
 
-  --line: #3a2c1c;
-  --line-soft: rgba(245, 200, 150, 0.12);
-  --line-medium: #4a3823;
+  --line: #2e2218;
+  --line-soft: rgba(245, 200, 150, 0.1);
+  --line-medium: #3d2e1e;
 
   --accent: #f59e0b;
   --accent-strong: #fbbf24;
   --cyan: #f59e0b;
   --green: #fbbf24;
-  --green-bg: rgba(120, 53, 15, 0.35);
-  --green-border: rgba(251, 191, 36, 0.3);
+  --green-bg: rgba(100, 45, 10, 0.3);
+  --green-border: rgba(251, 191, 36, 0.25);
 
-  /* Acento cálido sobre fondo oscuro café */
+  /* Acento dorado cálido */
   --neon: #fbbf24;
   --neon-strong: #fde047;
-  --neon-ring: rgba(251, 191, 36, 0.35);
-  --neon-ring-soft: rgba(251, 191, 36, 0.18);
-  --neon-line: rgba(251, 191, 36, 0.3);
-  --neon-line-strong: rgba(251, 191, 36, 0.55);
-  --neon-badge-bg: rgba(120, 53, 15, 0.4);
-  --neon-glow: rgba(251, 191, 36, 0.5);
-  --neon-glow-soft: rgba(251, 191, 36, 0.2);
-  --neon-ambient: rgba(251, 191, 36, 0.08);
-  --neon-halo: rgba(251, 191, 36, 0.2);
+  --neon-ring: rgba(251, 191, 36, 0.3);
+  --neon-ring-soft: rgba(251, 191, 36, 0.15);
+  --neon-line: rgba(251, 191, 36, 0.25);
+  --neon-line-strong: rgba(251, 191, 36, 0.5);
+  --neon-badge-bg: rgba(100, 45, 10, 0.35);
+  --neon-glow: rgba(251, 191, 36, 0.4);
+  --neon-glow-soft: rgba(251, 191, 36, 0.15);
+  --neon-ambient: rgba(251, 191, 36, 0.06);
+  --neon-halo: rgba(251, 191, 36, 0.15);
 
-  /* Toque secundario cálido (light) */
+  /* Toque cálido secundario */
   --neon-warm: #fbbf24;
   --neon-warm-strong: #fde047;
-  --neon-warm-glow: rgba(251, 191, 36, 0.6);
-  --neon-warm-halo: rgba(251, 191, 36, 0.2);
+  --neon-warm-glow: rgba(251, 191, 36, 0.5);
+  --neon-warm-halo: rgba(251, 191, 36, 0.15);
 
-  /* Toque secundario naranja/rojo (light) */
+  /* Toque naranja/rojo */
   --neon-red: #f97316;
   --neon-red-strong: #fb923c;
-  --neon-red-ring: rgba(249, 115, 22, 0.35);
-  --neon-red-ring-soft: rgba(249, 115, 22, 0.18);
-  --neon-red-glow: rgba(249, 115, 22, 0.5);
-  --neon-red-glow-soft: rgba(249, 115, 22, 0.2);
-  --neon-red-halo: rgba(249, 115, 22, 0.2);
+  --neon-red-ring: rgba(249, 115, 22, 0.3);
+  --neon-red-ring-soft: rgba(249, 115, 22, 0.15);
+  --neon-red-glow: rgba(249, 115, 22, 0.4);
+  --neon-red-glow-soft: rgba(249, 115, 22, 0.15);
+  --neon-red-halo: rgba(249, 115, 22, 0.15);
 }
 
 html.light body {
   background:
-    radial-gradient(at 15% 0%, rgba(245, 158, 11, 0.18), transparent 55%),
-    radial-gradient(at 85% 10%, rgba(239, 68, 68, 0.12), transparent 55%),
-    radial-gradient(at 8% 85%, rgba(217, 119, 6, 0.16), transparent 55%),
-    linear-gradient(135deg, #1a130c 0%, #17110c 45%, #1c150d 75%, #140f09 100%);
+    radial-gradient(at 12% 0%, rgba(251, 191, 36, 0.12), transparent 50%),
+    radial-gradient(at 88% 8%, rgba(249, 115, 22, 0.08), transparent 50%),
+    radial-gradient(at 5% 90%, rgba(217, 119, 6, 0.1), transparent 50%),
+    linear-gradient(160deg, #12100b 0%, #15110c 30%, #18130e 60%, #0f0d08 100%);
   background-attachment: fixed;
 }
 
@@ -203,7 +204,7 @@ html {
 }
 
 html.light {
-  background-color: #17110c;
+  background-color: #0f0d08;
 }
 
 body {
@@ -328,7 +329,7 @@ p {
 }
 
 .light ::-webkit-scrollbar-track {
-  background: var(--color-light-bg);
+  background: #12100b;
 }
 
 ::-webkit-scrollbar-thumb:hover {

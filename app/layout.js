@@ -72,6 +72,29 @@ export const metadata = {
     title: "Lucio Ingargiola | Front End Developer",
     description:
       "Desarrollador Front End y estudiante de Desarrollo de Aplicaciones Informáticas",
+    url: "https://lucio-portfolio-theta.vercel.app",
+    siteName: "Lucio Ingargiola",
+    images: [
+      {
+        url: "/profile.webp",
+        width: 192,
+        height: 192,
+        alt: "Lucio Ingargiola",
+      },
+    ],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Lucio Ingargiola | Front End Developer",
+    description:
+      "Desarrollador Front End y estudiante de Desarrollo de Aplicaciones Informáticas",
+    images: ["/profile.webp"],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
