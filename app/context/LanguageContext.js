@@ -141,6 +141,8 @@ const translations = {
     marketing: {
       badge: "Marketing Digital",
       cvEditing: "CV de edición",
+      cvEditingEs: "CV Edición - Español",
+      cvEditingEn: "CV Edición - Inglés",
       title: "Marketing",
       titleAccent: "digital",
       description:
@@ -438,6 +440,8 @@ const translations = {
     marketing: {
       badge: "Digital Marketing",
       cvEditing: "Editing CV",
+      cvEditingEs: "Editing CV - Spanish",
+      cvEditingEn: "Editing CV - English",
       title: "Marketing",
       titleAccent: "digital",
       description:

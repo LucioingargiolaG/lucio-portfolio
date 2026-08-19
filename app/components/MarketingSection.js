@@ -10,8 +10,11 @@
  */
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Rocket, TrendingUp, FileText, Share2, Mail, BarChart3, ArrowRight, Clapperboard, FileDown } from 'lucide-react';
+import { Rocket, TrendingUp, FileText, Share2, Mail, BarChart3, ArrowRight, Clapperboard, FileDown, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
 import FadeInUp from './FadeInUp';
@@ -31,6 +34,38 @@ export default function MarketingSection() {
   const { t } = useLanguage();
   const { mode } = useMode();
 
+  const [cvOpen, setCvOpen] = useState(false);
+  const [cvPos, setCvPos] = useState(null);
+  const cvRef = useRef(null);
+
+  const toggleCv = () => {
+    if (cvOpen) { setCvOpen(false); return; }
+    if (cvRef.current) {
+      const r = cvRef.current.getBoundingClientRect();
+      setCvPos({ left: r.left + r.width / 2, top: r.bottom });
+    }
+    setCvOpen(true);
+  };
+
+  useEffect(() => {
+    if (!cvOpen) return;
+    const close = () => setCvOpen(false);
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    document.addEventListener('click', close);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('click', close);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [cvOpen]);
+
+  const cvItemClass =
+    'link-pretty flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-[var(--ink-soft)] hover:text-[var(--accent)] hover:bg-[var(--bg-glass)] transition-colors cursor-pointer';
+
   if (mode !== 'web') return null;
 
   return (
@@ -46,14 +81,63 @@ export default function MarketingSection() {
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
               {t.marketing.badge}
             </span>
-            <a
-              href="/cv-edicion.pdf"
-              download
-              className="font-mono inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[var(--ink-soft)] border border-[var(--line)] bg-[var(--bg-card)] rounded-full px-4 py-1.5 transition-all duration-300 hover:border-accent-50 hover:text-[var(--accent)] hover:-translate-y-0.5"
-            >
-              <FileDown size={14} className="text-[var(--accent)]" />
-              {t.marketing.cvEditing}
-            </a>
+            <div className="relative" ref={cvRef}>
+              <button
+                type="button"
+                onClick={toggleCv}
+                aria-haspopup="menu"
+                aria-expanded={cvOpen}
+                className="font-mono inline-flex items-center gap-2 text-xs font-semibold tracking-widest uppercase text-[var(--ink-soft)] border border-[var(--line)] bg-[var(--bg-card)] rounded-full px-4 py-1.5 transition-all duration-300 hover:border-accent-50 hover:text-[var(--accent)] hover:-translate-y-0.5 cursor-pointer"
+              >
+                <FileDown size={14} className="text-[var(--accent)]" />
+                {t.marketing.cvEditing}
+                <ChevronDown size={12} className={`transition-transform duration-300 ${cvOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {typeof document !== 'undefined' &&
+                createPortal(
+                  <AnimatePresence>
+                    {cvOpen && cvPos && (
+                      <motion.div
+                        initial={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
+                        animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
+                        transition={{ duration: 0.18 }}
+                        role="menu"
+                        style={{
+                          position: 'fixed',
+                          left: cvPos.left,
+                          top: cvPos.top + 8,
+                          zIndex: 50,
+                        }}
+                        className="w-60 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
+                      >
+                        <a
+                          href="/cv-edicion.pdf"
+                          download
+                          onClick={() => setCvOpen(false)}
+                          role="menuitem"
+                          className={cvItemClass}
+                        >
+                          <FileDown size={15} className="text-[var(--accent)]" />
+                          {t.marketing.cvEditingEs}
+                        </a>
+                        <a
+                          href="/cv-edicion-en.pdf"
+                          download
+                          onClick={() => setCvOpen(false)}
+                          role="menuitem"
+                          className={cvItemClass}
+                        >
+                          <FileDown size={15} className="text-[var(--accent)]" />
+                          {t.marketing.cvEditingEn}
+                        </a>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>,
+                  document.body
+                )}
+            </div>
           </div>
         </FadeInUp>
 
