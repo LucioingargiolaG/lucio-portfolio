@@ -2,7 +2,7 @@
  * Acceso secreto al panel de administración.
  *
  * Cómo funciona (easter egg):
- *  1. Tecleá la palabra "admin" en cualquier parte de la página.
+ *  1. Tecleá la palabra "papanata" en cualquier parte de la página.
  *  2. Aparece un candado flotante arriba a la derecha (6 segundos).
  *  3. Al clickearlo, se abre un input de contraseña que "emerge" de la foto
  *     de perfil (animación con framer-motion y posicionamiento calculado).
@@ -20,7 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X, LogIn } from 'lucide-react';
 
 // Palabra secreta que hay que teclear para que aparezca el candado.
-const SECRET = 'admin';
+const SECRET = 'papanata';
 // Dimensiones de la tarjeta de login (para calcular posición).
 const CARD_W = 380;
 const CARD_H = 330;
@@ -34,7 +34,7 @@ export default function SecretAccess() {
   const [loading, setLoading] = useState(false); // verificando PIN
   const [error, setError] = useState(null); // mensaje de error
 
-  const bufferRef = useRef(''); // buffer de teclas para detectar "admin"
+  const bufferRef = useRef(''); // buffer de teclas para detectar "papanata"
   const lockTimerRef = useRef(null); // timer que oculta el candado
   const idleTimerRef = useRef(null); // timer que limpia el buffer si no se teclea
   const inputRef = useRef(null); // referencia al input (para focus)
@@ -101,7 +101,7 @@ export default function SecretAccess() {
 
   // Listeners globales: detectar la palabra secreta, Escape, click en links.
   useEffect(() => {
-    // Detector de tecleo: acumula caracteres y busca la palabra "admin".
+    // Detector de tecleo: acumula caracteres y busca la palabra "papanata".
     const onKeyDown = (e) => {
       const target = e.target;
       const isTyping =
@@ -118,7 +118,7 @@ export default function SecretAccess() {
         bufferRef.current = bufferRef.current.slice(-20);
       }
 
-      // Si el buffer contiene "admin": mostramos el candado por 6 segundos.
+      // Si el buffer contiene "papanata": mostramos el candado por 6 segundos.
       if (bufferRef.current.includes(SECRET)) {
         bufferRef.current = '';
         setShowLock(true);
