@@ -80,7 +80,7 @@ export default function ProjectsSection({ projects }) {
               data-card
               className="snap-center shrink-0 w-[300px] md:w-[340px] flex"
             >
-              <Link href="/projects" className="block w-full">
+              <Link href="/proyectos" className="block w-full">
                 <article className="group relative w-full overflow-hidden rounded-2xl border border-[var(--neon-line)] bg-[var(--bg-card)] flex flex-col transition-all duration-300 hover:border-[var(--neon)] hover:shadow-[0_0_40px_var(--neon-glow)]">
                   {/* Panel visual: fondo con patrón de puntos + emoji del proyecto */}
                   <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)]">

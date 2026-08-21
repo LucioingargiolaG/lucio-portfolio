@@ -7,7 +7,7 @@ export default function sitemap() {
       priority: 1,
     },
     {
-      url: "https://lucio-portfolio-theta.vercel.app/projects",
+      url: "https://lucio-portfolio-theta.vercel.app/proyectos",
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,

@@ -1,5 +1,5 @@
 /**
- * Página de proyectos — ruta "/projects".
+ * Página de proyectos — ruta "/proyectos".
  *
  * Es un Server Component async: trae los proyectos de MongoDB en el
  * servidor y se los pasa a `ProjectsContent` (componente cliente) para

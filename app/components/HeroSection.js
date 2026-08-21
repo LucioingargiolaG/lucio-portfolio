@@ -228,9 +228,9 @@ export default function HeroSection() {
             {t.hero.contact}
           </a>
 
-          {/* Link secundario a la página /projects */}
+          {/* Link secundario a la página /proyectos */}
           <Link
-            href="/projects"
+            href="/proyectos"
             className="link-pretty group flex items-center gap-2 text-sm text-[var(--ink-soft)] hover:text-[var(--neon)] transition-colors duration-300"
           >
             {t.hero.viewProjects}

@@ -1,5 +1,5 @@
 /**
- * Contenido de la página /projects (client component).
+ * Contenido de la página /proyectos (client component).
  *
  * Recibe `projects` (obtenidos en el servidor por projects/page.js) y los
  * muestra como lista de tarjetas expandidas:

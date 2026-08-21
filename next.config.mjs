@@ -16,6 +16,13 @@ const nextConfig = {
     // de imágenes (por ej. hosting estático o Netlify).
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      // La página de proyectos se llama /proyectos; los links viejos con
+      // /projects (compartidos antes del renombre) siguen funcionando.
+      { source: '/projects', destination: '/proyectos', permanent: true },
+    ];
+  },
 };
 
 // Exportamos la configuración por defecto para que Next.js la lea.

@@ -177,7 +177,7 @@ export default function Navbar() {
     } else {
       setMode('web'); // forzamos modo web (donde existen las secciones)
       if (window.location.pathname !== '/') {
-        // En otra página (p.ej. /projects): navegamos a la home con el ancla.
+        // En otra página (p.ej. /proyectos): navegamos a la home con el ancla.
         window.location.href = `/${href}`;
         return;
       }

@@ -1,6 +1,6 @@
 /**
  * Botón "Volver" que aparece al pie de cada sección y lleva de vuelta
- * al inicio (o al href indicado, útil en páginas como /projects).
+ * al inicio (o al href indicado, útil en páginas como /proyectos).
  *
  * Es un ancla simple con animación hover (flecha que sube).
  */
