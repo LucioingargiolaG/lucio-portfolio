@@ -65,7 +65,7 @@ export default function ProjectsSection({ projects }) {
   return (
     <>
       <section
-        id="projects"
+        id="proyectos"
         className="bg-[var(--bg-section-glass)] grid grid-cols-1 md:grid-cols-12 gap-12 items-center max-w-7xl mx-auto px-6 py-24"
       >
       {/* Carrusel (columna izquierda, 7/12 del ancho) */}

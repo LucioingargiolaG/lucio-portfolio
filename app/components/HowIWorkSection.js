@@ -69,7 +69,7 @@ export default function HowIWorkSection() {
   if (mode !== 'web') return null; // esta sección solo existe en modo web
 
   return (
-    <section id="how-i-work" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
+    <section id="como-trabajo" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
       <div className="max-w-6xl mx-auto">
         {/* Badge de sección */}
         <FadeInUp>

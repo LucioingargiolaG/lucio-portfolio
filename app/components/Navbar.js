@@ -22,10 +22,19 @@ import Logo from './Logo';
 
 // Rutas de navegación. El orden determina cuál se muestra de izquierda a derecha.
 const navLinks = [
-  { key: 'projects', href: '#projects' },
-  { key: 'howIWork', href: '#how-i-work' },
-  { key: 'contact', href: '#contact' },
+  { key: 'projects', href: '#proyectos' },
+  { key: 'howIWork', href: '#como-trabajo' },
+  { key: 'contact', href: '#contacto' },
 ];
+
+// Anclas viejas (en inglés) → nuevas (en español). Así los links compartidos
+// antes del renombre (ej. sitio.com/#contact) siguen llevando a su sección.
+const legacyAnchors = {
+  main: 'inicio',
+  projects: 'proyectos',
+  'how-i-work': 'como-trabajo',
+  contact: 'contacto',
+};
 
 /**
  * Switch WEB / IA.
@@ -159,6 +168,8 @@ export default function Navbar() {
   // cambia a modo WEB para que aparezca y hace scroll suave.
   const handleNavClick = (e, href) => {
     e.preventDefault();
+    // Refleja la sección en la URL sin recargar ni ensuciar el historial.
+    history.replaceState(null, '', href);
     const target = document.getElementById(href.slice(1));
     const scroll = () => target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     if (target) {
@@ -184,10 +195,36 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  // Scroll-spy: resalta el enlace de la sección visible en pantalla.
+  // Al montar en la home: si la URL no tiene ancla, mostramos #inicio.
+  // Si trae una ancla vieja (en inglés), la migramos a la nueva y scrolleamos.
   useEffect(() => {
-    const sections = navLinks
-      .map((link) => document.getElementById(link.href.slice(1)))
+    if (window.location.pathname !== '/') return;
+    const raw = window.location.hash.slice(1);
+    if (!raw) {
+      history.replaceState(null, '', '#inicio');
+      return;
+    }
+    const mapped = legacyAnchors[raw];
+    if (mapped) {
+      history.replaceState(null, '', `#${mapped}`);
+      setTimeout(
+        () =>
+          document
+            .getElementById(mapped)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        300
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Scroll-spy: resalta el enlace de la sección visible en pantalla y
+  // mantiene el ancla de la URL sincronizada con lo que se está viendo.
+  useEffect(() => {
+    // Incluimos #inicio para que, al volver arriba, la URL también acompañe.
+    const ids = ['inicio', ...navLinks.map((link) => link.href.slice(1))];
+    const sections = ids
+      .map((id) => document.getElementById(id))
       .filter(Boolean);
 
     // IntersectionObserver avisa cuándo una sección entra en el viewport.
@@ -195,6 +232,9 @@ export default function Navbar() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            if (window.location.hash !== `#${entry.target.id}`) {
+              history.replaceState(null, '', `#${entry.target.id}`);
+            }
             const match = navLinks.find(
               (link) => link.href.slice(1) === entry.target.id
             );
@@ -228,9 +268,9 @@ export default function Navbar() {
       <nav className="bg-[var(--bg-nav)] backdrop-blur-md border-[var(--line-soft)] rounded-full px-6 py-3 flex items-center justify-between md:justify-center gap-8 shadow-lg shadow-black/40">
         {/* Logo */}
         <a
-          href="#main"
+          href="#inicio"
           className="text-[var(--ink-strong)] font-bold whitespace-nowrap transition-all duration-300 hover:opacity-80 cursor-pointer"
-          onClick={(e) => handleNavClick(e, '#main')}
+          onClick={(e) => handleNavClick(e, '#inicio')}
         >
           <Logo />
         </a>

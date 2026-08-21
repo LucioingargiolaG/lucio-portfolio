@@ -90,7 +90,7 @@ export default function ContactSection() {
 
   return (
     <section
-      id="contact"
+      id="contacto"
       className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)]"
     >
       <div className="max-w-6xl mx-auto">

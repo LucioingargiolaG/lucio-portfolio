@@ -77,7 +77,7 @@ export default function HeroSection() {
 
   return (
     <section
-      id="main"
+      id="inicio"
       className="relative min-h-screen flex flex-col items-center justify-start md:justify-center bg-[var(--bg-section-glass)] text-[var(--ink-strong)] px-6 pt-28 pb-16 md:py-20 overflow-hidden"
     >
       {/* Brillo ambiental central + línea de horizonte neón */}
@@ -221,7 +221,7 @@ export default function HeroSection() {
 
           {/* Botón principal de contacto */}
           <a
-            href="#contact"
+            href="#contacto"
             className="bg-[var(--neon)] hover:bg-[var(--neon-strong)] text-black shadow-[0_0_20px_var(--neon-glow)] hover:shadow-[0_0_35px_var(--neon-glow)] rounded-full px-6 py-3 flex items-center gap-2 text-sm font-bold transition-all duration-300"
           >
             <Send size={16} />

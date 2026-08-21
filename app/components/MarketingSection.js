@@ -209,7 +209,7 @@ export default function MarketingSection() {
               {t.marketing.cta}
             </h3>
             <a
-              href="#contact"
+              href="#contacto"
               className="inline-flex items-center gap-2 bg-accent hover:bg-accent-strong text-black font-bold rounded-full px-8 py-3 text-sm transition-all duration-300 shadow-accent-lg hover:shadow-accent-xl"
             >
               {t.marketing.ctaButton}
