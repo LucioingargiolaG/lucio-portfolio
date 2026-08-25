@@ -17,6 +17,11 @@ import { useLanguage } from '@/app/context/LanguageContext';
 import FadeInUp from '../components/FadeInUp';
 import Volver from '../components/Volver';
 
+// Detecta si el campo `image` guarda una imagen real (ruta local o URL)
+// en lugar de un emoji.
+const isImagePath = (v) =>
+  typeof v === 'string' && (v.startsWith('/') || v.startsWith('http'));
+
 export default function ProjectsContent({ projects }) {
   const { t } = useLanguage();
 
@@ -66,24 +71,31 @@ export default function ProjectsContent({ projects }) {
         </FadeInUp>
       ) : (
         <div className="space-y-10">
-          {projects.map((project, i) => {
-            const even = i % 2 === 0; // zig-zag visual
+          {projects.map((project) => {
             return (
               <FadeInUp key={project._id} delay={100}>
                 <article className="group grid overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl transition-all duration-300 hover:border-accent-40 hover:shadow-2xl hover:shadow-black/50 md:grid-cols-[1fr_1.6fr]">
-                  {/* Panel visual (imagen = emoji) */}
-                  <div
-                    className={`relative flex min-h-56 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)] p-10 ${
-                      even ? '' : 'md:order-2' // impar: imagen a la derecha
-                    }`}
-                  >
+                  {/* Panel visual (imagen o emoji) — siempre a la izquierda */}
+                  <div className="relative flex min-h-56 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)] p-10">
                     {/* Patrón de puntos de fondo */}
                     <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(var(--accent)_1px,transparent_1px)] [background-size:18px_18px]" />
-                    {/* Halo de acento detrás del emoji */}
-                    <div className="absolute -inset-10 rounded-full bg-[var(--accent)]/10 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
-                    <span className="relative text-8xl drop-shadow-xl transition-transform duration-500 group-hover:scale-110">
-                      {project.image}
-                    </span>
+                    {isImagePath(project.image) ? (
+                      /* Imagen real: cubre todo el panel */
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <>
+                        {/* Halo de acento detrás del emoji */}
+                        <div className="absolute -inset-10 rounded-full bg-[var(--accent)]/10 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
+                        <span className="relative text-8xl drop-shadow-xl transition-transform duration-500 group-hover:scale-110">
+                          {project.image}
+                        </span>
+                      </>
+                    )}
                     {/* Badge de categoría */}
                     <span className="absolute top-4 left-4 text-xs font-semibold text-[var(--accent)] border border-accent-20 bg-[var(--bg-card)]/70 backdrop-blur-sm rounded-full px-3 py-1">
                       {t.projects.category[project.category] ?? project.category}

@@ -266,7 +266,7 @@ export default function AdminPanel() {
           // -------- LOGIN: formulario de contraseña --------
           <form
             onSubmit={handleLogin}
-            className="mt-10 max-w-md mx-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-8 shadow-xl"
+            className="mt-10 max-w-md md:ml-auto rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-8 shadow-xl"
           >
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-10 text-[var(--accent)]">
               <Lock size={26} />
@@ -393,13 +393,13 @@ export default function AdminPanel() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className={labelClass}>Imagen (emoji, opcional)</label>
+                  <label className={labelClass}>Imagen (emoji o ruta de imagen, opcional)</label>
                   <input
                     type="text"
                     name="image"
                     value={form.image}
                     onChange={handleChange}
-                    placeholder="🛒"
+                    placeholder="🛒  o  /proyectos/mi-captura.png"
                     className={inputClass}
                   />
                 </div>
@@ -445,7 +445,16 @@ export default function AdminPanel() {
                     >
                       <div className="min-w-0">
                         <p className="flex items-center gap-2 truncate text-sm font-bold text-[var(--ink-strong)]">
-                          <span className="text-base">{project.image}</span>
+                          {typeof project.image === 'string' &&
+                          (project.image.startsWith('/') || project.image.startsWith('http')) ? (
+                            <img
+                              src={project.image}
+                              alt=""
+                              className="h-6 w-6 rounded object-cover"
+                            />
+                          ) : (
+                            <span className="text-base">{project.image}</span>
+                          )}
                           {project.title}
                         </p>
                         <p className="mt-1 truncate text-xs text-[var(--ink-faint)]">

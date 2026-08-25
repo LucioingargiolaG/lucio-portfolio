@@ -86,12 +86,25 @@ export default function ProjectsSection({ projects }) {
                   <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)]">
                     {/* Grid de puntos decorativo */}
                     <div className="absolute inset-0 opacity-40 [background-image:radial-gradient(var(--neon)_1px,transparent_1px)] [background-size:16px_16px]" />
-                    {/* Halo de neón detrás del emoji */}
-                    <div className="absolute -inset-8 rounded-full bg-[var(--neon-ambient)] blur-3xl transition-all duration-500 group-hover:bg-[var(--neon-halo)]" />
-                    {/* Emoji como "imagen" del proyecto */}
-                    <span className="relative text-7xl drop-shadow-[0_0_20px_var(--neon-glow)] transition-transform duration-500 group-hover:scale-110">
-                      {project.image}
-                    </span>
+                    {typeof project.image === 'string' &&
+                    (project.image.startsWith('/') || project.image.startsWith('http')) ? (
+                      /* Imagen real: cubre todo el panel */
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        loading="lazy"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
+                    ) : (
+                      <>
+                        {/* Halo de neón detrás del emoji */}
+                        <div className="absolute -inset-8 rounded-full bg-[var(--neon-ambient)] blur-3xl transition-all duration-500 group-hover:bg-[var(--neon-halo)]" />
+                        {/* Emoji como "imagen" del proyecto */}
+                        <span className="relative text-7xl drop-shadow-[0_0_20px_var(--neon-glow)] transition-transform duration-500 group-hover:scale-110">
+                          {project.image}
+                        </span>
+                      </>
+                    )}
                     {/* Badge de categoría */}
                     {project.category && (
                       <span className="absolute top-3 left-3 rounded-full border border-[var(--neon-line)] bg-[var(--bg-card)]/70 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--neon)] backdrop-blur-sm">
