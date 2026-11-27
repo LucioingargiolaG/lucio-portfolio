@@ -23,6 +23,7 @@ import "./globals.css"; // estilos globales + Tailwind
 import { ThemeProvider } from "./context/ThemeProvider"; // tema dark/light
 import { LanguageProvider } from "./context/LanguageContext"; // idioma es/en
 import { ModeProvider } from "./context/ModeContext"; // modo web/ia
+import Footer from "./components/Footer";
 import Navbar from "./components/Navbar"; // barra de navegación fija
 import Starfield from "./components/Starfield"; // fondo estelar animado
 import SecretAccess from "./components/SecretAccess"; // atajo oculto al /admin
@@ -51,20 +52,22 @@ const jetBrainsMono = JetBrains_Mono({
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
+  preload: false,
   variable: "--font-gotham",
 });
 
 // Metadatos globales del sitio (SEO y compartir en redes).
-// El título de la home está en inglés porque el objetivo principal son
-// clientes internacionales; las páginas internas usan la plantilla.
+const homeTitle = "Lucio Ingargiola — Desarrollo web, marketing y edición audiovisual";
+const homeDescription = "Desarrollo web, marketing digital y edición audiovisual para pequeños negocios. Conocé mis servicios, proyectos y el caso de estudio del menú QR de UTAP.";
+
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Lucio Ingargiola — Web Developer for Small Businesses",
+    default: homeTitle,
     template: "%s | Lucio Ingargiola",
   },
   description:
-    "I build fast, modern, and user-friendly websites for small businesses, combining web development with digital marketing strategy. Based in Argentina, working with clients worldwide.",
+    homeDescription,
   keywords: [
     "Lucio Ingargiola",
     "web developer",
@@ -83,9 +86,9 @@ export const metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Lucio Ingargiola — Web Developer for Small Businesses",
+    title: homeTitle,
     description:
-      "Fast, modern websites for small businesses, combining web development with digital marketing strategy.",
+      homeDescription,
     url: SITE_URL,
     siteName: "Lucio Ingargiola",
     images: [
@@ -96,15 +99,14 @@ export const metadata = {
         alt: "Lucio Ingargiola",
       },
     ],
-    locale: "en_US",
-    alternateLocale: ["es_AR"],
+    locale: "es_AR",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Lucio Ingargiola — Web Developer for Small Businesses",
+    title: homeTitle,
     description:
-      "Fast, modern websites for small businesses, combining web development with digital marketing strategy.",
+      homeDescription,
     images: ["/profile.webp"],
   },
   robots: {
@@ -128,9 +130,9 @@ const jsonLd = {
   name: "Lucio Ingargiola",
   url: SITE_URL,
   image: `${SITE_URL}/profile.webp`,
-  jobTitle: "Web Developer",
+  jobTitle: "Desarrollador frontend",
   description:
-    "Web developer focused on fast, modern websites for small businesses, combining development with digital marketing strategy.",
+    homeDescription,
   address: {
     "@type": "PostalAddress",
     addressLocality: "Azul",
@@ -186,7 +188,8 @@ export default function RootLayout({ children }) {
               {/* Elementos globales fijos */}
               <Starfield /> {/* fondo de estrellas detrás de todo */}
               <Navbar /> {/* menú superior */}
-              {children} {/* aquí se renderiza la página actual */}
+              <main id="contenido" tabIndex={-1}>{children}</main>
+              <Footer />
               <SecretAccess /> {/* candado oculto (tecleá "admin") */}
             </ModeProvider>
           </LanguageProvider>

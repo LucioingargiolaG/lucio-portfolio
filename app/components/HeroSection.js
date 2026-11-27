@@ -15,7 +15,7 @@
  *
  * Comportamiento:
  *  - Respeta prefers-reduced-motion: sin animaciones del hero al cargar
- *    (framer-motion `useReducedMotion`).
+ *    (`useReducedMotion`).
  *  - iconos decorativos marcados `aria-hidden` (WCAG 2.2 AA).
  *  - Menú de CV con portal a `document.body` (fuera del flujo del layout).
  *  - Escritura en Responsive: vertical en mobile, misma jerarquía en desktop.
@@ -25,9 +25,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
+import { focusDownloadMenu, handleDownloadMenuKey } from '@/lib/downloadMenu';
 import Link from 'next/link';
 import { Download, Send, ChevronDown, Hand, ArrowRight, FileDown } from 'lucide-react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
 import SkillsMarquee from './SkillsMarquee';
@@ -36,7 +37,6 @@ import SkillsMarquee from './SkillsMarquee';
 const anim = {
   badge: 'animate-[fade-up_0.7s_ease-out_both]',
   greeting: 'animate-[fade-up_0.7s_ease-out_0.1s_both]',
-  name: 'animate-[fade-up_0.7s_ease-out_0.2s_both]',
   professionalTag: 'animate-[fade-up_0.7s_ease-out_0.13s_both]',
   mainTitle: 'animate-[fade-up_0.7s_ease-out_0.25s_both]',
   description: 'animate-[fade-up_0.7s_ease-out_0.3s_both]',
@@ -64,12 +64,14 @@ export default function HeroSection() {
   // respete el scroll-margin-top de la sección y el título no quede debajo
   // del navbar fijo.
   const handleCaseStudy = (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
     history.replaceState(null, '', '#caso-utap');
-    const scrollToCase = () =>
-      document
-        .getElementById('caso-utap')
-        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scrollToCase = () => {
+      const target = document.getElementById('caso-utap');
+      target?.focus({ preventScroll: true });
+      target?.scrollIntoView({ behavior: reduced ? 'instant' : 'smooth', block: 'start' });
+    };
 
     if (document.getElementById('caso-utap')) {
       scrollToCase();
@@ -107,8 +109,10 @@ export default function HeroSection() {
   // Cierra el menú de CV con Escape, click afuera, scroll o resize.
   useEffect(() => {
     if (!cvOpen) return;
+    const trigger = cvRef.current?.querySelector('button');
+    focusDownloadMenu(cvMenuRef.current);
     const onKey = (e) => {
-      if (e.key === 'Escape') setCvOpen(false);
+      handleDownloadMenuKey(e, cvMenuRef.current, trigger, () => setCvOpen(false));
     };
     const onClick = (e) => {
       // El menú vive en un portal (document.body): ignorar sus clicks para
@@ -117,16 +121,20 @@ export default function HeroSection() {
       if (cvMenuRef.current?.contains(e.target)) return;
       setCvOpen(false);
     };
-    const onScroll = () => setCvOpen(false);
+    const openedAtY = window.scrollY;
+    const onScroll = () => {
+      if (window.scrollY !== openedAtY) setCvOpen(false);
+    };
     window.addEventListener('keydown', onKey);
     document.addEventListener('click', onClick);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onScroll);
+    window.addEventListener('scroll', onScroll);
+    const onResize = () => setCvOpen(false);
+    window.addEventListener('resize', onResize);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.removeEventListener('click', onClick);
-      window.removeEventListener('scroll', onScroll, true);
-      window.removeEventListener('resize', onScroll);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
     };
   }, [cvOpen]);
 
@@ -136,11 +144,11 @@ export default function HeroSection() {
 
   return (
     <section
-      id="inicio"
+      id="inicio" tabIndex={-1}
       // El Navbar fijo (top-6, altura ~60px) cubre el inicio de la página:
       // scroll-margin-top hace que el ancla #inicio deje la sección abajo del
       // menú al hacer scroll a la cima. No cambia el diseño, solo el anclado.
-      className="relative min-h-screen flex flex-col items-center justify-start md:justify-center bg-[var(--bg-section-glass)] text-[var(--ink-strong)] px-6 pt-20 pb-16 md:py-20 overflow-hidden scroll-mt-[64px] lg:scroll-mt-[84px]"
+      className="relative min-h-screen flex flex-col items-center justify-start md:justify-center bg-[var(--bg-section-glass)] text-[var(--ink-strong)] px-6 pt-22 pb-16 sm:pt-24 md:pt-26 md:pb-20 overflow-hidden scroll-mt-[64px] lg:scroll-mt-[84px]"
     >
       {/* Brillo ambiental central + línea de horizonte neón */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
@@ -149,9 +157,9 @@ export default function HeroSection() {
 
       <div className="relative z-10 flex flex-col items-center text-center w-full min-w-0 max-w-4xl mx-auto">
         {/* Avatar flotante con anillo de neón rotatorio y pulso radar */}
-        <div id="profile-avatar" className={`relative mt-6 mb-4 ${on(anim.avatarFloat)}`}>
+        <div id="profile-avatar" className={`relative mb-4 sm:mb-5 ${on(anim.avatarFloat)}`}>
           {/* Halo de luz detrás del avatar */}
-          <div className="absolute -inset-6 rounded-full bg-[var(--neon-warm-halo)] blur-3xl" />
+          <div className="absolute -inset-6 rounded-full bg-[var(--neon-warm-halo)] opacity-70 blur-3xl" />
           {/* Anillo cónico de neón girando (rojo + amarillo) */}
           <div
             className={`absolute -inset-2.5 rounded-full bg-[conic-gradient(from_0deg,transparent,var(--neon),transparent_30%,var(--neon-warm),transparent_60%,var(--neon-strong),transparent_78%)] blur-[3px] ${on(anim.ringSpin)}`}
@@ -170,15 +178,16 @@ export default function HeroSection() {
               alt={t.hero.title}
               width={192}
               height={192}
-              priority
-              className="w-32 h-32 md:w-44 md:h-44 rounded-full object-cover border-2 border-[var(--neon-line-strong)] shadow-[0_0_35px_var(--neon-glow)]"
+              preload
+              unoptimized
+              className="w-28 h-28 md:w-40 md:h-40 rounded-full object-cover border-2 border-[var(--neon-line-strong)] shadow-[0_0_35px_var(--neon-glow)]"
             />
           </div>
         </div>
 
         {/* Badge de disponibilidad */}
-        <span className={`${on(anim.badge)} font-mono inline-flex items-center gap-2 bg-[var(--neon-badge-bg)] border border-[var(--neon-line)] text-[var(--neon)] rounded-full px-4 py-1.5 text-xs mb-2`}>
-          <span className="w-2 h-2 rounded-full bg-[var(--neon-warm)] animate-pulse" aria-hidden="true" />
+        <span className={`${on(anim.badge)} font-mono mb-3 inline-block max-w-72 text-balance rounded-full border border-[var(--neon-line)] bg-[var(--neon-badge-bg)] px-3 py-1.5 text-[11px] leading-4 text-[var(--neon)] sm:max-w-none sm:px-4 sm:text-xs`}>
+          <span className="me-2 inline-block size-1.5 -translate-y-px rounded-full bg-[var(--neon-warm)] align-middle animate-pulse sm:size-2" aria-hidden="true" />
           {t.hero.available}
         </span>
 
@@ -189,7 +198,7 @@ export default function HeroSection() {
         </p>
 
         {/* Nombre como titular principal (apellido en neón con glow) */}
-        <h1 className={`${on(anim.name)} text-3xl md:text-7xl font-bold leading-tight tracking-tight mb-2`}>
+        <h1 className="mb-2 text-3xl font-bold leading-tight tracking-tight md:text-6xl">
           {firstName}{' '}
           <span className="text-[var(--neon)] [text-shadow:0_0_20px_var(--neon-glow),0_0_40px_var(--neon-glow-soft)]">
             {lastName}
@@ -197,8 +206,12 @@ export default function HeroSection() {
         </h1>
 
         {/* Etiqueta profesional (línea ligera justo debajo del nombre) */}
-        <p className={`${on(anim.professionalTag)} font-mono text-[var(--ink-strong)] font-semibold text-xs md:text-sm uppercase tracking-[0.2em] mb-3`}>
-          {t.hero.professionalTag}
+        <p className={`${on(anim.professionalTag)} mb-4 min-h-[2lh] w-full max-w-sm font-mono text-[10px] font-semibold uppercase leading-relaxed tracking-[0.08em] text-[var(--ink-strong)] min-[360px]:text-xs sm:min-h-0 sm:max-w-none sm:tracking-[0.18em] md:text-sm`}>
+          {t.hero.professionalTag.split(' · ').map((specialty, index, all) => (
+            <span key={specialty} className="me-1.5 inline-block whitespace-nowrap last:me-0">
+              {specialty}{index < all.length - 1 ? ' ·' : ''}{' '}
+            </span>
+          ))}
         </p>
 
         {/* Título principal comercial */}
@@ -208,17 +221,17 @@ export default function HeroSection() {
 
         {/* Descripción: tipografía regular, menos peso visual */}
         <p
-          className={`${on(anim.description)} font-normal text-[var(--ink-soft)] text-sm md:text-base leading-relaxed max-w-2xl mb-8`}
+          className={`${on(anim.description)} font-normal text-[var(--ink-soft)] text-sm md:text-base leading-relaxed max-w-2xl mb-5`}
         >
           {t.hero.description}
         </p>
 
         {/* Botones */}
-        <div className={`${on(anim.buttons)} flex flex-wrap items-center justify-center gap-4`}>
+        <div className={`${on(anim.buttons)} flex flex-wrap items-center justify-center gap-x-2 gap-y-1 sm:gap-x-4`}>
           {/* Botón principal de contacto */}
           <a
             href="#contacto"
-            className="bg-[var(--neon)] hover:bg-[var(--neon-strong)] text-black shadow-[0_0_20px_var(--neon-glow)] hover:shadow-[0_0_35px_var(--neon-glow)] rounded-full px-6 py-3 flex items-center gap-2 text-sm font-bold transition-all duration-300"
+            className="bg-[var(--neon)] hover:bg-[var(--neon-strong)] text-black shadow-[0_0_20px_var(--neon-glow)] hover:shadow-[0_0_35px_var(--neon-glow)] rounded-full px-4 sm:px-6 py-3 flex items-center gap-2 text-sm font-bold transition-all duration-300"
           >
             <Send size={16} aria-hidden="true" />
             {t.hero.contact}
@@ -227,7 +240,8 @@ export default function HeroSection() {
           {/* Link secundario a la página /proyectos */}
           <Link
             href="/proyectos"
-            className="border border-[var(--neon-line-strong)] hover:border-[var(--neon)] text-[var(--ink)] rounded-full px-6 py-3 flex items-center gap-2 text-sm font-semibold transition-all duration-300"
+            prefetch={false}
+            className="border border-[var(--neon-line-strong)] hover:border-[var(--neon)] text-[var(--ink)] rounded-full px-4 sm:px-6 py-3 flex items-center gap-2 text-sm font-semibold transition-all duration-300"
           >
             {t.hero.viewProjects}
             <ArrowRight size={16} aria-hidden="true" />
@@ -237,6 +251,7 @@ export default function HeroSection() {
           <div className="relative" ref={cvRef}>
             <button
               type="button"
+              id="cv-tecnico"
               onClick={toggleCv}
               aria-haspopup="menu"
               aria-expanded={cvOpen}
@@ -254,26 +269,21 @@ export default function HeroSection() {
             </button>
 
             {/* createPortal renderiza el menú dentro de document.body,
-                anclado en la posición del botón. AnimatePresence anima
-                la entrada y salida. */}
+                anclado en la posición del botón, con entrada de opacidad en CSS. */}
             {typeof document !== 'undefined' &&
               createPortal(
-                <AnimatePresence>
-                  {cvOpen && cvPos && (
-                    <motion.div
+                  cvOpen && cvPos && (
+                    <div
                       ref={cvMenuRef}
-                      initial={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
-                      animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
-                      transition={{ duration: 0.18 }}
                       role="menu"
                       style={{
                         position: 'fixed',
                         left: cvPos.left,
+                        transform: 'translateX(-50%)',
                         top: cvPos.top + 12,
                         zIndex: 50,
                       }}
-                      className="w-56 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
+                      className="cv-menu w-56 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
                     >
                       {/* Descarga CV en español */}
                       <a
@@ -281,6 +291,7 @@ export default function HeroSection() {
                         download
                         onClick={() => setCvOpen(false)}
                         role="menuitem"
+                        tabIndex={-1}
                         className={cvItemClass}
                       >
                         <FileDown size={15} className="text-[var(--neon)]" aria-hidden="true" />
@@ -292,40 +303,41 @@ export default function HeroSection() {
                         download
                         onClick={() => setCvOpen(false)}
                         role="menuitem"
+                        tabIndex={-1}
                         className={cvItemClass}
                       >
                         <FileDown size={15} className="text-[var(--neon)]" aria-hidden="true" />
                         {t.cv.en}
                       </a>
-                    </motion.div>
-                  )}
-                </AnimatePresence>,
+                    </div>
+                  ),
                 document.body
               )}
           </div>
         </div>
 
-        {/* Stack técnico por categorías en marquee (más abajo, después de los CTA) */}
-        {mode === 'web' && (
-          <div className={`${on(anim.marquee)} w-full mb-6`}>
-            <SkillsMarquee />
-          </div>
-        )}
-
         {/* Prueba social verificable: el proyecto real que ya está en uso */}
         <a
           href="#caso-utap"
           onClick={handleCaseStudy}
-          className="link-pretty group mt-6 inline-flex items-center gap-2 text-xs font-semibold text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--neon)]"
+          className="link-pretty group mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--neon)]"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--neon)]" aria-hidden="true" />
-          {t.utap.viewCase}
+          {t.hero.utapProof}
           <ArrowRight
             size={14}
             aria-hidden="true"
             className="transition-transform duration-300 group-hover:translate-x-1"
           />
         </a>
+
+        {/* Stack técnico por categorías en marquee (más abajo, después de los CTA) */}
+        {mode === 'web' && (
+          <div className={`${on(anim.marquee)} mt-6 mb-6 w-full border-t border-[var(--line-soft)] pt-4 md:mt-8`}>
+            <SkillsMarquee />
+          </div>
+        )}
+
       </div>
 
       {/* Indicador inferior de scroll */}

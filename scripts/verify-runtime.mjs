@@ -8,7 +8,7 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const BASE = process.env.BASE_URL || 'http://localhost:3123';
-const OUT = join(process.cwd(), 'screenshots');
+const OUT = process.env.SCREENSHOT_DIR || join(process.cwd(), 'screenshots');
 mkdirSync(OUT, { recursive: true });
 
 const results = [];
@@ -51,6 +51,25 @@ await run('home render + lang es', async () => {
   const lang = await page.locator('html').getAttribute('lang');
   if (!h1.includes('Lucio') || lang !== 'es') throw new Error(`h1="${h1}" lang=${lang}`);
   return `h1="${h1.slice(0, 40)}", lang=${lang}`;
+});
+
+await run('portada: landmark, salto por teclado y habilidades sin duplicados', async () => {
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  if (await page.getByRole('main').count() !== 1) throw new Error('Se esperaba un landmark main');
+  await page.keyboard.press('Tab');
+  const skip = page.getByRole('link', { name: 'Saltar al contenido principal' });
+  if (!(await skip.evaluate((element) => element === document.activeElement))) throw new Error('El primer Tab no enfoca el enlace de salto');
+  await page.keyboard.press('Enter');
+  if (!(await page.locator('main').evaluate((element) => element === document.activeElement))) throw new Error('El salto no enfocó main');
+  if (await page.getByRole('heading', { name: /Lenguajes & Web/i }).count() !== 1) throw new Error('Hay una copia accesible del marquee');
+  const pause = page.getByRole('button', { name: 'Pausar desplazamiento' });
+  await pause.click();
+  try {
+    const marquee = page.locator('.skill-marquee .animate-marquee');
+    if (await marquee.evaluate((element) => getComputedStyle(element).animationName) !== 'none') throw new Error('El marquee no se detuvo');
+  } finally {
+    await page.getByRole('button', { name: 'Reanudar desplazamiento' }).click();
+  }
 });
 
 await run('sin overflow horizontal (desktop)', async () => {
@@ -97,17 +116,17 @@ await run('starfield + estrellas fugaces', async () => {
     const decor = [...root.querySelectorAll('[data-motion-decorative]')]
       .filter((e) => e.className.includes('w-24'));
     return {
-      stars: root.querySelectorAll('span').length - decor.length,
+      stars: Number(root.dataset.starCount),
+      layers: root.querySelectorAll('[data-star-layer]').length,
       shooting: decor.length,
-      anim: getComputedStyle(root.querySelector('span')).animationName,
+      anim: getComputedStyle(root.querySelector('[data-star-layer]')).animationName,
       details: decor.map((e) => {
         const s = getComputedStyle(e);
-        const m = new DOMMatrixReadOnly(s.transform);
         return {
           name: s.animationName,
           fill: s.animationFillMode,
           opacity: +(+s.opacity).toFixed(2),
-          angle: Math.round(Math.atan2(m.b, m.a) * 180 / Math.PI),
+          angle: parseFloat(s.rotate),
         };
       }),
     };
@@ -115,7 +134,7 @@ await run('starfield + estrellas fugaces', async () => {
   // Dos fugaces como máximo. `fill-mode: both` evita la línea horizontal
   // estática durante el delay; la rotación -35° da la diagonal natural.
   if (
-    r.stars < 100 || r.shooting < 1 || r.shooting > 2 ||
+    r.stars < 72 || r.layers > 8 || r.shooting < 1 || r.shooting > 2 ||
     !r.anim.includes('star-') ||
     r.details.some((d) => d.name !== 'shoot' || d.fill !== 'both' || d.angle !== -35)
   ) throw new Error(JSON.stringify(r));
@@ -133,9 +152,11 @@ await run('marquee continuo', async () => {
 await page.screenshot({ caret: 'initial', path: join(OUT, 'verification-01-home-es.png'), fullPage: false });
 
 await run('transición de página al navegar por Link', async () => {
-  await page.locator('a[href="/proyectos"]:visible').first().click();
-  // Navegación SPA: no hay evento "load", esperamos el cambio de pathname.
-  await page.waitForFunction(() => location.pathname === '/proyectos');
+  await page.goto(`${BASE}/?lang=es`, { waitUntil: 'load' });
+  await Promise.all([
+    page.waitForURL((url) => url.pathname === '/proyectos'),
+    page.getByRole('link', { name: 'Ver mi trabajo', exact: true }).click(),
+  ]);
   const anim = await page.locator('.page-transition').first().evaluate(
     (el) => getComputedStyle(el).animationName
   );
@@ -182,7 +203,7 @@ await run('cambio de idioma desde el switch', async () => {
 });
 
 await run('tema claro', async () => {
-  await page.locator('button[aria-label="Toggle theme"]:visible').first().click();
+  await page.getByRole('button', { name: 'Change theme' }).first().click();
   await page.waitForTimeout(500);
   const cls = await page.locator('html').getAttribute('class');
   if (!cls.includes('light')) throw new Error(`class=${cls}`);
@@ -191,7 +212,7 @@ await run('tema claro', async () => {
 });
 
 await run('modo IA y vuelta a WEB', async () => {
-  await page.getByRole('button', { name: 'IA', exact: true }).first().click();
+  await page.getByRole('button', { name: 'AI', exact: true }).first().click();
   await page.waitForTimeout(500);
   const iaVisible = await page.getByText(/## Inteligencia artificial|## Artificial intelligence/).first().isVisible();
   if (!iaVisible) throw new Error('Vista IA no visible');
@@ -199,6 +220,31 @@ await run('modo IA y vuelta a WEB', async () => {
   await page.getByRole('button', { name: 'WEB', exact: true }).first().click();
   await page.waitForTimeout(400);
   return 'IA visible y WEB restaurado';
+});
+
+await run('teclado: menús de CV, flechas y retorno de foco', async () => {
+  const hasFocus = (locator) => locator.evaluate((element) => element === document.activeElement);
+  for (const label of [/^CV$/, /CV de edición/i]) {
+    await page.goto(`${BASE}/?lang=es`, { waitUntil: 'load' });
+    const button = page.getByRole('button', { name: label });
+    await button.scrollIntoViewIfNeeded();
+    await button.focus();
+    await page.keyboard.press('Enter');
+    const menu = page.getByRole('menu');
+    const first = menu.getByRole('menuitem').first();
+    const last = menu.getByRole('menuitem').last();
+    await first.waitFor();
+    if (!(await hasFocus(first))) throw new Error(`${label}: foco inicial incorrecto`);
+    await page.keyboard.press('ArrowDown');
+    if (!(await hasFocus(last))) throw new Error(`${label}: ArrowDown no avanzó y aria-expanded quedó en ${await button.getAttribute('aria-expanded')}`);
+    await page.keyboard.press('ArrowUp');
+    if (!(await hasFocus(first))) throw new Error(`${label}: ArrowUp no volvió`);
+    await page.keyboard.press('Escape');
+    if (await button.getAttribute('aria-expanded') !== 'false' || !(await hasFocus(button))) {
+      throw new Error(`${label}: Escape no cerró devolviendo el foco`);
+    }
+    await menu.waitFor({ state: 'hidden' });
+  }
 });
 
 await run('descarga de los 4 CV', async () => {
@@ -269,11 +315,11 @@ await run('portafolio AV: 12 tarjetas, miniaturas y uniformidad', async () => {
 });
 
 await run('filtros de categoría', async () => {
-  await page.getByRole('tab', { name: 'Gaceta Play' }).click();
+  await page.getByRole('button', { name: 'Gaceta Play', exact: true }).press('Enter');
   await page.waitForTimeout(300);
   const gaceta = await page.locator('button[aria-label^="Reproducir"]').count();
   if (gaceta !== 3) throw new Error(`Gaceta=${gaceta}`);
-  await page.getByRole('tab', { name: 'Todos' }).click();
+  await page.getByRole('button', { name: 'Todos', exact: true }).click();
   await page.waitForTimeout(300);
   const all = await page.locator('button[aria-label^="Reproducir"]').count();
   if (all !== 12) throw new Error(`Todos=${all}`);
@@ -345,14 +391,14 @@ await run('móvil: estrellas estables al abrir/cerrar menú', async () => {
     window.__starNode = el;
     return el.querySelectorAll('span').length;
   });
-  await mobile.getByRole('button', { name: 'Toggle menu' }).click();
+  await mobile.getByRole('button', { name: 'Menú de navegación' }).click();
   await mobile.waitForTimeout(350);
   const during = await mobile.evaluate(() => ({
     sameNode: document.querySelector('[data-starfield]') === window.__starNode,
     stars: document.querySelector('[data-starfield]').querySelectorAll('span').length,
   }));
   await mobile.screenshot({ caret: 'initial', path: join(OUT, 'verification-08-mobile-menu.png'), fullPage: false });
-  await mobile.getByRole('button', { name: 'Toggle menu' }).click();
+  await mobile.getByRole('button', { name: 'Menú de navegación' }).click();
   await mobile.waitForTimeout(350);
   const after = await mobile.evaluate(() => ({
     sameNode: document.querySelector('[data-starfield]') === window.__starNode,
@@ -365,8 +411,8 @@ await run('móvil: estrellas estables al abrir/cerrar menú', async () => {
 });
 
 await run('móvil: anclas', async () => {
-  const toggle = mobile.getByRole('button', { name: 'Toggle menu' });
-  const anchor = mobile.locator('header a[href="#servicios"]:visible');
+  const toggle = mobile.getByRole('button', { name: 'Menú de navegación' });
+  const anchor = mobile.locator('header a[href="/#servicios"]:visible');
   // El menú se anima; si un click cae durante la transición puede no
   // registrar el estado. Reintentamos hasta que el ancla sea visible.
   for (let i = 0; i < 4 && (await anchor.count()) === 0; i++) {
@@ -387,6 +433,16 @@ await run('móvil: anclas', async () => {
   }));
   if (r.hash !== '#servicios' || r.y < 100 || Math.abs(r.top) > 140) throw new Error(JSON.stringify(r));
   return `hash=${r.hash}, scrollY=${r.y}, target top=${r.top}`;
+});
+
+await run('móvil: Escape cierra el menú y devuelve el foco', async () => {
+  const toggle = mobile.getByRole('button', { name: 'Menú de navegación' });
+  await toggle.focus();
+  await mobile.keyboard.press('Enter');
+  await mobile.getByRole('navigation', { name: 'Navegación móvil' }).waitFor();
+  await mobile.keyboard.press('Escape');
+  if (await toggle.getAttribute('aria-expanded') !== 'false') throw new Error('El menú sigue abierto');
+  if (!(await toggle.evaluate((element) => element === document.activeElement))) throw new Error('No se restituyó el foco');
 });
 
 await run('móvil: sin overflow', async () => {

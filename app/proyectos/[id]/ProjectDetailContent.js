@@ -7,23 +7,23 @@
  */
 "use client";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { ArrowLeft, FolderGit } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import FadeInUp from "../../components/FadeInUp";
-import { LINKS } from "@/lib/site";
-import { featuredDescription } from "@/lib/projectCopy";
+import { featuredArchitecture, featuredDescription, featuredKey } from "@/lib/projectCopy";
 
 export default function ProjectDetailContent({ project }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const architecture = featuredArchitecture(project, lang);
 
   const isImage =
     typeof project.image === "string" &&
     (project.image.startsWith("/") || project.image.startsWith("http"));
 
-  // UTAP: el caso de estudio confirma que el menú está en uso real
-  // (detectado por su repositorio / URL de demo verificada).
-  const isUtap = project.githubUrl === LINKS.utapRepo;
+  const isUtap = featuredKey(project) === "utap";
 
   return (
     <section className="mx-auto min-h-screen max-w-5xl px-6 py-32">
@@ -42,8 +42,11 @@ export default function ProjectDetailContent({ project }) {
         <div className="relative mb-10 flex min-h-[400px] items-center justify-center overflow-hidden rounded-3xl border border-[var(--line)] bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)]">
           <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(var(--accent)_1px,transparent_1px)] [background-size:18px_18px]" />
           {isImage ? (
-            <img
+            <Image
               src={project.image}
+              fill
+              sizes="(max-width: 1023px) calc(100vw - 48px), 976px"
+              unoptimized={project.image !== "/proyectos/menu-utap.png"}
               alt={project.title}
               className="absolute inset-0 h-full w-full object-cover"
             />
@@ -89,14 +92,14 @@ export default function ProjectDetailContent({ project }) {
         )}
 
         {/* Arquitectura */}
-        {project.architecture && (
+        {architecture && (
           <FadeInUp delay={400}>
             <div className="rounded-2xl border-l-4 border-accent bg-[var(--bg-section-glass)] p-6">
               <p className="mb-2 font-mono text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
                 {t.projectDetail.architecture}
               </p>
               <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
-                {project.architecture}
+                {architecture}
               </p>
             </div>
           </FadeInUp>

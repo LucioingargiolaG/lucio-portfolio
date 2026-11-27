@@ -1,7 +1,7 @@
 /**
  * Contenido de la página "Portafolio Digital" (trabajos de edición
  * audiovisual y contenido digital): encabezado editorial, filtro por
- * categorías (chips ARIA role="tablist"), grid de tarjetas de videos
+ * categorías con botones de selección, grid de tarjetas de videos
  * (lazy), cartera de categorías completas (Google Drive) y CTA de contacto.
  * Componente client (filtro + reproductores).
  */
@@ -9,6 +9,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { AV_CATEGORIES, AV_PROJECTS } from "@/lib/av-projects";
@@ -59,13 +60,13 @@ export default function PortfolioDigitalContent() {
         <FadeInUp delay={200}>
           <div
             className="mt-10 flex flex-wrap items-center gap-2"
-            role="tablist"
+            role="group"
             aria-label={t.portfolioDigital.categories}
           >
             <button
               type="button"
-              role="tab"
-              aria-selected={filter === "all"}
+              aria-pressed={filter === "all"}
+              aria-controls="audiovisual-results"
               onClick={() => setFilter("all")}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                 filter === "all"
@@ -79,8 +80,8 @@ export default function PortfolioDigitalContent() {
               <button
                 key={cat.id}
                 type="button"
-                role="tab"
-                aria-selected={filter === cat.id}
+                aria-pressed={filter === cat.id}
+                aria-controls="audiovisual-results"
                 onClick={() => setFilter(cat.id)}
                 className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                   filter === cat.id
@@ -95,7 +96,7 @@ export default function PortfolioDigitalContent() {
         </FadeInUp>
 
         {/* Grid de tarjetas (lazy, editorial, miniaturas 9:16 uniformes) */}
-        <div className="mt-8 grid grid-cols-2 items-stretch gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+        <div id="audiovisual-results" className="mt-8 grid grid-cols-2 items-stretch gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.length === 0 ? (
             <p className="col-span-full text-center text-[var(--ink-soft)]">
               {t.portfolioDigital.noVideos}
@@ -136,13 +137,13 @@ export default function PortfolioDigitalContent() {
         {/* CTA de contacto */}
         <FadeInUp delay={550}>
           <div className="mt-12 flex justify-center">
-            <a
+            <Link
               href="/#contacto"
               className="inline-flex items-center gap-2 rounded-full bg-[var(--accent)] px-7 py-3.5 text-sm font-bold text-black shadow-accent transition-all duration-300 hover:bg-[var(--accent-strong)] hover:shadow-accent-lg"
             >
               {t.portfolioDigital.cta}
               <ChevronRight size={16} aria-hidden="true" />
-            </a>
+            </Link>
           </div>
         </FadeInUp>
 

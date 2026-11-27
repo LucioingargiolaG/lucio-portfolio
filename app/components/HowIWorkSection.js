@@ -11,7 +11,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from '@/lib/useReducedMotion';
+import Link from 'next/link';
 import { Bolt, Rocket, Palette, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
@@ -73,7 +74,7 @@ export default function HowIWorkSection() {
   if (mode !== 'web') return null; // esta sección solo existe en modo web
 
   return (
-    <section id="como-trabajo" className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
+    <section id="como-trabajo" tabIndex={-1} className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
       <div className="max-w-6xl mx-auto">
         {/* Badge de sección */}
         <FadeInUp>
@@ -85,10 +86,27 @@ export default function HowIWorkSection() {
 
         {/* Título */}
         <FadeInUp delay={150}>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mt-4 mb-12 text-[var(--ink-strong)]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mt-4 mb-7 text-[var(--ink-strong)]">
             {t.howIWork.title}{' '}
             <span className="text-[var(--accent)]">{t.howIWork.titleAccent}</span>
           </h2>
+        </FadeInUp>
+
+        <FadeInUp className="mb-8 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-6">
+          <h3 className="text-xl font-bold text-[var(--ink-strong)]">{t.recruiter.profile.role}</h3>
+          <p className="mt-2 text-[var(--ink-soft)]">{t.recruiter.profile.note}</p>
+          <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {t.recruiter.profile.items.map(({ label, value }) => (
+              <div key={label}>
+                <dt className="text-sm font-semibold text-[var(--ink-strong)]">{label}</dt>
+                <dd className="mt-0.5 text-sm text-[var(--ink-soft)]">{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-[var(--accent)]">
+            <Link className="link-pretty" href="/proyectos" prefetch={false}>{t.howIWork.projects}</Link>
+            <a className="link-pretty" href="#cv-tecnico">{t.howIWork.cv}</a>
+          </div>
         </FadeInUp>
 
         {/* Tarjetas de los pilares */}

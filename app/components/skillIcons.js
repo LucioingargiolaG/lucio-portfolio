@@ -104,9 +104,12 @@ const UI_MAP = [
 // Busca la primera coincidencia de un nombre normalizado dentro de un mapa.
 // Ordena por largo del término para que coincidan antes las palabras
 // específicas (p.ej. "jsonwebtokens" antes que "webpack").
+const bySpecificity = (a, b) => b.m[0].length - a.m[0].length;
+BRAND_MAP.sort(bySpecificity);
+UI_MAP.sort(bySpecificity);
+
 function findMatch(norm, map) {
-  const sorted = [...map].sort((a, b) => b.m[0].length - a.m[0].length);
-  return sorted.find((entry) => entry.m.some((key) => norm.includes(key)));
+  return map.find((entry) => entry.m.some((key) => norm.includes(key)));
 }
 
 /**
@@ -133,7 +136,7 @@ export function SkillChip({ name, className = '' }) {
     <span
       className={`inline-flex items-center gap-2 rounded-full border border-accent-20 bg-accent-5 px-3 py-1.5 text-xs font-medium text-[var(--ink-soft)] ${className}`}
     >
-      <Icon className="h-4 w-4 shrink-0" style={{ color }} />
+      <Icon aria-hidden="true" className="h-4 w-4 shrink-0" style={{ color }} />
       {name}
     </span>
   );

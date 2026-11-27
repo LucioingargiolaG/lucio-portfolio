@@ -35,10 +35,6 @@ export async function generateMetadata({ params, searchParams }) {
     description,
     alternates: {
       canonical: `${SITE_URL}/proyectos/${id}`,
-      languages: {
-        es: `${SITE_URL}/proyectos/${id}?lang=es`,
-        en: `${SITE_URL}/proyectos/${id}?lang=en`,
-      },
     },
     openGraph: {
       title: `${project.title} | Lucio Ingargiola`,
@@ -48,6 +44,7 @@ export async function generateMetadata({ params, searchParams }) {
       images: project.image?.startsWith("/") ? [project.image] : undefined,
       type: "article",
     },
+    twitter: { card: "summary", title: project.title, description },
   };
 }
 

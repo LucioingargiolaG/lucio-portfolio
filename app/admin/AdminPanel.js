@@ -17,6 +17,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Lock, Plus, Trash2, RefreshCw, Save, FolderPlus, LogOut, KeyRound } from 'lucide-react';
 
 // Categorías permitidas para los proyectos (se muestran en el select).
@@ -460,9 +461,12 @@ export default function AdminPanel() {
                         <p className="flex items-center gap-2 truncate text-sm font-bold text-[var(--ink-strong)]">
                           {typeof project.image === 'string' &&
                           (project.image.startsWith('/') || project.image.startsWith('http')) ? (
-                            <img
+                            <Image
                               src={project.image}
                               alt=""
+                              width={24}
+                              height={24}
+                              unoptimized
                               className="h-6 w-6 rounded object-cover"
                             />
                           ) : (

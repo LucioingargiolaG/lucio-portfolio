@@ -20,8 +20,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowUpRight, CheckCircle2, ChevronRight, Info, Send } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { useMode } from "@/app/context/ModeContext";
@@ -90,7 +91,7 @@ export default function UtapCaseStudy() {
   if (mode !== "web") return null;
 
   return (
-    <section id="caso-utap" className="scroll-mt-[64px] lg:scroll-mt-[84px] relative bg-[var(--bg-section-alt-glass)] px-6 py-32 sm:px-8 lg:px-8">
+    <section id="caso-utap" tabIndex={-1} className="scroll-mt-[64px] lg:scroll-mt-[84px] relative bg-[var(--bg-section-alt-glass)] px-6 py-32 sm:px-8 lg:px-8">
       <div className="mx-auto max-w-6xl">
         {/* Encabezado: badge + título + descripción breve */}
         <FadeIn>
@@ -114,9 +115,12 @@ export default function UtapCaseStudy() {
           {/* Columna izquierda: imagen auténtica del menú público + CTAs */}
           <FadeIn delay={200}>
             <div className="relative overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl">
-              <img
+              <Image
                 src="/proyectos/menu-utap.png"
                 alt={`${t.utap.title} — ${t.utap.titleAccent}`}
+                width={2160}
+                height={1290}
+                sizes="(max-width: 639px) calc(100vw - 48px), (max-width: 1023px) calc(100vw - 64px), (max-width: 1216px) 40vw, 465px"
                 className="h-auto w-full object-cover"
                 loading="lazy"
               />
@@ -200,8 +204,9 @@ export default function UtapCaseStudy() {
             <FadeIn delay={700}>
               <div>
                 <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
-                  {t.utap.technologiesTitle}
+                  {t.utap.technicalTitle}
                 </h3>
+                <p className="mb-3 text-sm leading-relaxed text-[var(--ink-soft)]">{t.utap.technical}</p>
                 <div className="flex flex-wrap gap-2">
                   {UTAP_TECHNOLOGIES.map((tech) => (
                     <span

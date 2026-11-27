@@ -63,6 +63,12 @@ function writeLang(next) {
 const translations = {
   es: {
     nav: {
+      skip: "Saltar al contenido principal",
+      menu: "Menú de navegación",
+      mobile: "Navegación móvil",
+      theme: "Cambiar tema",
+      mode: "MODO",
+      homeLabel: "LI · Ir al inicio",
       home: "inicio",
       services: "Servicios",
       projects: "Proyectos",
@@ -72,10 +78,11 @@ const translations = {
       back: "Volver",
     },
     hero: {
+      utapProof: "Ver UTAP, un proyecto en uso real",
       greeting: "Hola, soy",
       title: "Lucio Ingargiola",
-      professionalTag: "DESARROLLO WEB · MARKETING DIGITAL",
-      mainTitle: "Transformo ideas en experiencias digitales.",
+      professionalTag: "DESARROLLO WEB · MARKETING DIGITAL · EDICIÓN AUDIOVISUAL",
+      mainTitle: "Soluciones digitales para pequeños negocios",
       available: "Disponible para proyectos de pequeños negocios",
       description:
         "Desarrollo soluciones digitales que ayudan a los negocios a conectar con sus clientes, comunicar su valor y simplificar su gestión.",
@@ -123,6 +130,8 @@ const translations = {
       ctaButton: "Hablemos de tu proyecto",
     },
     utap: {
+      technicalTitle: "Detalles técnicos",
+      technical: "El panel privado permite actualizar la carta en el momento. El menú público refleja los cambios mediante revalidación, de modo que el negocio puede mantener precios y horarios al día sin pedir un despliegue.",
       badge: "Caso de estudio",
       title: "UTAP",
       titleAccent: "Menú digital",
@@ -169,6 +178,8 @@ const translations = {
       contactCTA: "Hablemos",
     },
     projects: {
+      previous: "Anterior",
+      next: "Siguiente",
       badge: "Proyectos",
       title: "Proyectos",
       titleAccent: "destacados",
@@ -216,9 +227,12 @@ const translations = {
       notFound: "Proyecto no encontrado",
     },
     howIWork: {
-      badge: "Cómo Trabajo",
-      title: "Mi enfoque de",
-      titleAccent: "desarrollo",
+      background: "Formación y habilidades",
+      projects: "Ver proyectos web",
+      cv: "Ver CV técnico",
+      badge: "Experiencia",
+      title: "Perfil frontend",
+      titleAccent: "y forma de trabajo",
       pillars: [
         {
           icon: "bolt",
@@ -327,6 +341,9 @@ const translations = {
       noVideos: "Sin videos disponibles en esta categoría.",
     },
     recruiter: {
+      skillsHeading: "Habilidades y herramientas",
+      pause: "Pausar desplazamiento",
+      resume: "Reanudar desplazamiento",
       badge: "Para Reclutadores",
       title: "Skills & ",
       titleAccent: "Keywords",
@@ -422,7 +439,7 @@ const translations = {
       title: "Hablemos",
       titleAccent: "de tu proyecto",
       description:
-        "Contame qué necesitás. Puedo ayudarte con un sitio nuevo, una landing page o un menú digital para tu negocio.",
+        "Contame qué querés resolver. Puedo ayudarte con un sitio web, una campaña de marketing, un menú digital o una pieza audiovisual.",
       email: "Email",
       direct: "También podés escribirme directo a",
       name: "Nombre",
@@ -431,7 +448,7 @@ const translations = {
       phonePlaceholder: "Tu teléfono (opcional)",
       message: "Mensaje",
       messagePlaceholder:
-        "Contame sobre tu negocio y qué te gustaría lograr con el sitio...",
+        "Contame qué necesitás y qué te gustaría lograr…",
       send: "Enviar Mensaje",
       sending: "Enviando...",
       success: "¡Mensaje enviado correctamente!",
@@ -471,6 +488,12 @@ const translations = {
   // ---------- Traducciones en inglés ----------
   en: {
     nav: {
+      skip: "Skip to main content",
+      menu: "Navigation menu",
+      mobile: "Mobile navigation",
+      theme: "Change theme",
+      mode: "MODE",
+      homeLabel: "LI · Go to homepage",
       home: "main",
       services: "Services",
       projects: "Work",
@@ -480,10 +503,11 @@ const translations = {
       back: "Back",
     },
     hero: {
+      utapProof: "See UTAP in real use",
       greeting: "Hi, I'm",
       title: "Lucio Ingargiola",
-      professionalTag: "WEB DEVELOPMENT · DIGITAL MARKETING",
-      mainTitle: "I turn ideas into digital experiences.",
+      professionalTag: "WEB DEVELOPMENT · DIGITAL MARKETING · VIDEO EDITING",
+      mainTitle: "Digital services for small businesses",
       available: "Available for small business projects",
       description:
         "I develop digital solutions that help businesses connect with their customers, communicate their value, and simplify their operations.",
@@ -531,6 +555,8 @@ const translations = {
       ctaButton: "Let's talk about your project",
     },
     utap: {
+      technicalTitle: "Technical details",
+      technical: "The private dashboard lets the business update its menu directly. The public menu reflects those changes through revalidation, so prices and opening hours can stay current without a new deployment.",
       badge: "Case study",
       title: "UTAP",
       titleAccent: "Digital Menu",
@@ -577,6 +603,8 @@ const translations = {
       contactCTA: "Let's talk",
     },
     projects: {
+      previous: "Previous",
+      next: "Next",
       badge: "Work",
       title: "Featured",
       titleAccent: "projects",
@@ -623,9 +651,12 @@ const translations = {
       notFound: "Project not found",
     },
     howIWork: {
-      badge: "How I Work",
-      title: "My approach to",
-      titleAccent: "development",
+      background: "Education and skills",
+      projects: "View web projects",
+      cv: "View technical résumé",
+      badge: "Experience",
+      title: "Frontend profile",
+      titleAccent: "and how I work",
       pillars: [
         {
           icon: "bolt",
@@ -673,8 +704,8 @@ const translations = {
       cvEditing: "Editing CV",
       cvEditingEs: "Editing CV - Spanish",
       cvEditingEn: "Editing CV - English",
-      title: "Marketing",
-      titleAccent: "digital",
+      title: "Digital",
+      titleAccent: "marketing",
       description:
         "I complement my technical profile with digital marketing and audiovisual content creation. I develop strategies and edit visual pieces focused on project growth.",
       services: [
@@ -734,6 +765,9 @@ const translations = {
       noVideos: "No videos available in this category.",
     },
     recruiter: {
+      skillsHeading: "Skills and tools",
+      pause: "Pause scrolling",
+      resume: "Resume scrolling",
       badge: "For Recruiters",
       title: "Skills & ",
       titleAccent: "Keywords",
@@ -828,7 +862,7 @@ const translations = {
       title: "Let's talk",
       titleAccent: "about your project",
       description:
-        "Tell me what you need. I can help with a new website, a landing page, or a digital menu for your business.",
+        "Tell me what you want to achieve. I can help with a website, a marketing campaign, a digital menu, or a video.",
       email: "Email",
       direct: "You can also email me directly at",
       name: "Name",
@@ -837,7 +871,7 @@ const translations = {
       phonePlaceholder: "Your phone (optional)",
       message: "Message",
       messagePlaceholder:
-        "Tell me about your business and what you'd like the website to achieve...",
+        "Tell me what you need and what you’d like to achieve…",
       send: "Send Message",
       sending: "Sending...",
       success: "Message sent successfully!",

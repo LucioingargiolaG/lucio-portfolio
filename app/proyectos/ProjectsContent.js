@@ -12,10 +12,12 @@
  */
 'use client';
 
+import Image from "next/image";
+
 import Link from 'next/link';
 import { FolderGit, CircleCheck } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
-import { featuredKey, featuredDescription } from '@/lib/projectCopy';
+import { featuredKey, featuredDescription, featuredArchitecture } from '@/lib/projectCopy';
 import FadeInUp from '../components/FadeInUp';
 import Volver from '../components/Volver';
 
@@ -25,7 +27,7 @@ const isImagePath = (v) =>
   typeof v === 'string' && (v.startsWith('/') || v.startsWith('http'));
 
 export default function ProjectsContent({ projects }) {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section className="min-h-screen py-32 px-6 max-w-6xl mx-auto">
@@ -67,6 +69,7 @@ export default function ProjectsContent({ projects }) {
         <div className="space-y-10">
           {projects.map((project) => {
             const key = featuredKey(project);
+            const architecture = featuredArchitecture(project, lang);
             return (
               <FadeInUp key={project._id} delay={100}>
                 <article className="group grid overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--bg-card)] shadow-xl transition-all duration-300 hover:border-accent-40 hover:shadow-2xl hover:shadow-black/50 md:grid-cols-[1fr_1.6fr]">
@@ -81,8 +84,11 @@ export default function ProjectsContent({ projects }) {
                     <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(var(--accent)_1px,transparent_1px)] [background-size:18px_18px]" />
                     {isImagePath(project.image) ? (
                       /* Imagen real: cubre todo el panel */
-                      <img
+                      <Image
                         src={project.image}
+                        fill
+                        sizes="(max-width: 767px) calc(100vw - 48px), 430px"
+                        unoptimized={project.image !== "/proyectos/menu-utap.png"}
                         alt={project.title}
                         loading="lazy"
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -105,9 +111,9 @@ export default function ProjectsContent({ projects }) {
                   {/* Contenido */}
                   <div className="flex flex-col gap-4 p-8 md:p-10">
                     <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="text-2xl md:text-3xl font-extrabold text-[var(--ink-strong)]">
+                      <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--ink-strong)]">
                         {project.title}
-                      </h3>
+                      </h2>
                       {/* UTAP: proyecto en uso real (cierre v1.0) */}
                       {key === 'utap' && (
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-20 bg-accent-5 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
@@ -122,13 +128,13 @@ export default function ProjectsContent({ projects }) {
                     </p>
 
                     {/* Bloque de arquitectura (borde izquierdo de acento) */}
-                    {project.architecture && (
+                    {architecture && (
                       <div className="rounded-2xl border-l-4 border-accent bg-[var(--bg-section-glass)] p-4 md:p-5">
                         <p className="mb-1.5 font-mono text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
                           {t.projects.architectureTitle}
                         </p>
                         <p className="text-sm leading-relaxed text-[var(--ink-soft)]">
-                          {project.architecture}
+                          {architecture}
                         </p>
                       </div>
                     )}
