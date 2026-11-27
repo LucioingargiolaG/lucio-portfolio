@@ -18,10 +18,9 @@ import ServicesSection from "./components/ServicesSection";
 import UtapCaseStudy from "./components/UtapCaseStudy";
 import HowIWorkSection from "./components/HowIWorkSection";
 import MarketingSection from "./components/MarketingSection";
-import RecruitmentView from "./components/RecruitmentView";
+import RecruitmentSlot from "./components/RecruitmentSlot";
 import ProjectsSection from "./components/ProjectsSection";
 import ContactSection from "./components/ContactSection";
-import Footer from "./components/Footer";
 
 // Revalida cada 60 s: sirve la versión estática cacheada y la regenera
 // en background cuando expira (mucho más rápido que force-dynamic).
@@ -65,9 +64,8 @@ export default async function Home() {
       <ProjectsSection projects={projects} /> {/* carrusel de proyectos */}
       <HowIWorkSection /> {/* metodología / pilares */}
       <MarketingSection /> {/* servicios de marketing digital */}
-      <RecruitmentView /> {/* vista para reclutadores e IA (solo modo IA) */}
+      <RecruitmentSlot /> {/* vista para reclutadores e IA (solo modo IA) */}
       <ContactSection /> {/* formulario de contacto + redes */}
-      <Footer /> {/* pie de página */}
     </>
   );
 }

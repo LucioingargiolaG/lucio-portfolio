@@ -15,24 +15,26 @@ import { featuredRank } from "@/lib/projectCopy";
 import ProjectsContent from "./ProjectsContent";
 
 export const metadata = {
-  title: "Projects & Case Studies",
+  title: "Proyectos web y casos de estudio",
   description:
-    "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+    "Proyectos de desarrollo web de Lucio Ingargiola. Incluye UTAP, un menú QR con panel de administración en uso en una hamburguesería.",
   alternates: {
     canonical: `${SITE_URL}/proyectos`,
   },
   openGraph: {
-    title: "Projects & Case Studies",
+    title: "Proyectos web y casos de estudio",
     description:
-      "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+      "Proyectos de desarrollo web de Lucio Ingargiola. Incluye UTAP, un menú QR con panel de administración en uso en una hamburguesería.",
     url: `${SITE_URL}/proyectos`,
     type: "website",
+    locale: "es_AR",
+    images: ["/profile.webp"],
   },
   twitter: {
     card: "summary",
-    title: "Projects & Case Studies",
+    title: "Proyectos web y casos de estudio",
     description:
-      "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+      "Proyectos de desarrollo web de Lucio Ingargiola. Incluye UTAP, un menú QR con panel de administración en uso en una hamburguesería.",
   },
 };
 

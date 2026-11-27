@@ -12,7 +12,7 @@ Portfolio personal desarrollado con **Next.js 16** (App Router), **React 19**, *
 | **React 19** | UI y estado (hooks, context) |
 | **Tailwind CSS v4** | Estilos (importado vía PostCSS, tema con `@theme`) |
 | **MongoDB + Mongoose** | Base de datos y modelo `Project` |
-| **framer-motion** | Animaciones de entrada (fade-in, stagger) |
+| **CSS** | Animaciones de entrada, transiciones y movimiento reducido |
 | **lucide-react** | Íconos de interfaz |
 | **react-icons** | Íconos de marcas/tecnologías |
 

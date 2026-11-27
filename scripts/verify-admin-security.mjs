@@ -217,17 +217,28 @@ await check("actualización de password: revoca sesión anterior", async () => {
     await auth.isAuthenticatedRequest(requestWithToken(makeToken(changedAtSeconds - 2))),
     false
   );
-  // Regresión: un login inmediatamente posterior en el mismo segundo no debe
-  // quedar revocado por el cambio de contraseña.
+  // Una cookie anterior sin precisión suficiente se invalida por seguridad.
   assert.equal(
     await auth.isAuthenticatedRequest(requestWithToken(makeToken(changedAtSeconds))),
-    true
+    false
   );
   assert.equal(
     await auth.isAuthenticatedRequest(requestWithToken(makeToken(changedAtSeconds + 2))),
     true
   );
-  return "anterior=401, mismo segundo y posterior=200";
+  const realNow = Date.now;
+  const issueAt = (timestamp) => {
+    Date.now = () => timestamp;
+    try {
+      return auth.createSession().value;
+    } finally {
+      Date.now = realNow;
+    }
+  };
+  const changedAt = admin.passwordChangedAt.getTime();
+  assert.equal(await auth.isAuthenticatedRequest(requestWithToken(issueAt(changedAt))), false);
+  assert.equal(await auth.isAuthenticatedRequest(requestWithToken(issueAt(changedAt + 1))), true);
+  return "emisión anterior o ambigua denegada, emisión posterior permitida";
 });
 
 await check("fail-closed: DB inaccesible en auth y rate limiter", () => {

@@ -347,7 +347,7 @@ p {
     transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translate3d(0, -120vh, 0);
+    transform: translate3d(0, -100vh, 0);
   }
 }
 
@@ -411,32 +411,27 @@ p {
   }
 }
 
-/* Estrella fugaz: trayectoria diagonal natural y estela que se desvanece.
-   Todos los keyframes definen `transform` para que la rotación nunca se
-   pierda en la interpolación; el tramo visible es corto (0–11% del ciclo)
-   y el resto del ciclo queda en opacity 0. Starfield.js aplica además
-   `animation-fill-mode: both` para que el delay inicial no muestre la
-   línea horizontal del estado base. */
+/* La estela tiene una rotación fija y los keyframes solo la trasladan. */
 @keyframes shoot {
   0% {
     opacity: 0;
-    transform: translate3d(0, 0, 0) rotate(-35deg);
+    transform: translate3d(0, 0, 0);
   }
   2% {
     opacity: 0.95;
-    transform: translate3d(-8vw, 5.5vw, 0) rotate(-35deg);
+    transform: translate3d(-8vw, 5.5vw, 0);
   }
   6% {
     opacity: 0.5;
-    transform: translate3d(-34vw, 23.5vw, 0) rotate(-35deg);
+    transform: translate3d(-34vw, 23.5vw, 0);
   }
   11% {
     opacity: 0;
-    transform: translate3d(-62vw, 43vw, 0) rotate(-35deg);
+    transform: translate3d(-62vw, 43vw, 0);
   }
   100% {
     opacity: 0;
-    transform: translate3d(-62vw, 43vw, 0) rotate(-35deg);
+    transform: translate3d(-62vw, 43vw, 0);
   }
 }
 
@@ -489,7 +484,7 @@ p {
    Se aplica en app/template.js y app/proyectos/template.js. */
 @keyframes page-enter {
   from {
-    opacity: 0;
+    opacity: 0.96;
   }
   to {
     opacity: 1;
@@ -498,6 +493,21 @@ p {
 
 .page-transition {
   animation: page-enter 180ms ease-out both;
+}
+
+/* Las secciones alejadas de la portada conservan espacio para el scroll
+   y el navegador omite su pintura hasta que se acercan al viewport. */
+main :is(#como-trabajo, #marketing, #contacto) {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto var(--section-placeholder, 50rem);
+}
+
+#marketing { --section-placeholder: 60rem; }
+
+@media (max-width: 639px) {
+  #como-trabajo { --section-placeholder: 75rem; }
+  #marketing { --section-placeholder: 94rem; }
+  #contacto { --section-placeholder: 78rem; }
 }
 
 /* Oculta la barra de scroll en carruseles horizontales (scroll-snap) */
@@ -548,6 +558,7 @@ p {
     animation: none !important;
   }
 
+
   [data-starfield] [data-motion-decorative] {
     display: none;
   }
@@ -585,4 +596,52 @@ html[data-tab-hidden='true'] *::after {
 }
 .link-pretty:hover::after {
   transform: scaleX(1);
+}
+
+.skip-to-content {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: #000;
+  background: var(--accent);
+  transform: translateY(calc(-100% - 1rem));
+}
+
+.skip-to-content:focus { transform: none; }
+
+:is(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.skill-marquee[data-paused="true"] .marquee-mask {
+  overflow-x: auto;
+  mask-image: none;
+}
+.skill-marquee[data-paused="true"] .animate-marquee { animation: none; }
+.skill-marquee[data-paused="true"] .skill-group[aria-hidden="true"] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-marquee .marquee-mask { overflow-x: auto; mask-image: none; }
+  .skill-marquee .skill-group[aria-hidden="true"], .marquee-toggle { display: none; }
+  .animate-pulse, .animate-bounce { animation: none; }
+}
+
+.cv-menu { animation: cv-menu-enter 180ms ease-out both; }
+@keyframes cv-menu-enter { from { opacity: 0; } to { opacity: 1; } }
+.secret-lock-entry { animation: secret-lock-enter 280ms ease-out both; }
+.secret-card-entry { animation: secret-card-enter 280ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes secret-lock-enter {
+  from { opacity: 0; transform: translateY(20px) scale(0.8); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes secret-card-enter {
+  from { opacity: 0; transform: translate(var(--entry-x), var(--entry-y)) scale(0.2); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cv-menu, .secret-lock-entry, .secret-card-entry { animation: none; }
 }

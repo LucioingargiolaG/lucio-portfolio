@@ -10,9 +10,9 @@
  */
 'use client';
 
+import { focusDownloadMenu, handleDownloadMenuKey } from '@/lib/downloadMenu';
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Rocket, TrendingUp, FileText, Share2, Mail, BarChart3, ArrowRight, Clapperboard, FileDown, ChevronDown } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
@@ -51,7 +51,13 @@ export default function MarketingSection() {
   useEffect(() => {
     if (!cvOpen) return;
     const close = () => setCvOpen(false);
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const openedAtY = window.scrollY;
+    const onScroll = () => {
+      if (window.scrollY !== openedAtY) close();
+    };
+    const trigger = cvRef.current?.querySelector('button');
+    focusDownloadMenu(cvMenuRef.current);
+    const onKey = (e) => { handleDownloadMenuKey(e, cvMenuRef.current, trigger, close); };
     // El menú está en un portal: sus clicks no deben desmontar el <a download>.
     const onClick = (e) => {
       if (cvRef.current?.contains(e.target)) return;
@@ -60,12 +66,12 @@ export default function MarketingSection() {
     };
     window.addEventListener('keydown', onKey);
     document.addEventListener('click', onClick);
-    window.addEventListener('scroll', close, true);
+    window.addEventListener('scroll', onScroll);
     window.addEventListener('resize', close);
     return () => {
       window.removeEventListener('keydown', onKey);
       document.removeEventListener('click', onClick);
-      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', close);
     };
   }, [cvOpen]);
@@ -103,28 +109,25 @@ export default function MarketingSection() {
 
               {typeof document !== 'undefined' &&
                 createPortal(
-                  <AnimatePresence>
-                    {cvOpen && cvPos && (
-                      <motion.div
+                    cvOpen && cvPos && (
+                      <div
                         ref={cvMenuRef}
-                        initial={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
-                        animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
-                        transition={{ duration: 0.18 }}
                         role="menu"
                         style={{
                           position: 'fixed',
                           left: cvPos.left,
+                          transform: 'translateX(-50%)',
                           top: cvPos.top + 8,
                           zIndex: 50,
                         }}
-                        className="w-60 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
+                        className="cv-menu w-60 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
                       >
                         <a
                           href="/CV_Edicion_ES.pdf"
                           download
                           onClick={() => setCvOpen(false)}
                           role="menuitem"
+                          tabIndex={-1}
                           className={cvItemClass}
                         >
                           <FileDown size={15} className="text-[var(--accent)]" />
@@ -135,14 +138,14 @@ export default function MarketingSection() {
                           download
                           onClick={() => setCvOpen(false)}
                           role="menuitem"
+                          tabIndex={-1}
                           className={cvItemClass}
                         >
                           <FileDown size={15} className="text-[var(--accent)]" />
                           {t.marketing.cvEditingEn}
                         </a>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>,
+                      </div>
+                    ),
                   document.body
                 )}
             </div>

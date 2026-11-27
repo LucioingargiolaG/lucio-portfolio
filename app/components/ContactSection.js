@@ -13,7 +13,6 @@
 
 import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import emailjs from "@emailjs/browser";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, LINKS } from "@/lib/site";
 import FadeInUp from "./FadeInUp";
@@ -61,6 +60,7 @@ export default function ContactSection() {
     }
 
     try {
+      const { default: emailjs } = await import("@emailjs/browser");
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -96,7 +96,7 @@ export default function ContactSection() {
 
   return (
     <section
-      id="contacto"
+      id="contacto" tabIndex={-1}
       className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)]"
     >
       <div className="max-w-6xl mx-auto">

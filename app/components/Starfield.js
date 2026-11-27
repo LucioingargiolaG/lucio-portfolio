@@ -33,7 +33,7 @@ const rand = (rng, min, max) => rng() * (max - min) + min;
 // Pre-genera las estrellas para ambos temas usando semillas fijas.
 // Se ejecuta UNA sola vez al cargar el módulo (no en cada render).
 function generateStars(isLight, rng) {
-  const count = isLight ? 100 : 140;
+  const count = isLight ? 72 : 84;
   return Array.from({ length: count }, (_, i) => {
     const base = {
       left: rand(rng, 0, 100),
@@ -61,6 +61,36 @@ function generateStars(isLight, rng) {
 // Stars pre-generadas (se ejecuta al importar el módulo, una sola vez).
 const DARK_STARS = generateStars(false, mulberry32(42));
 const LIGHT_STARS = generateStars(true, mulberry32(99));
+
+// Cada capa rasteriza puntos estáticos y anima solo su transform y opacidad.
+// El mosaico oscuro repite un alto de viewport para ascender sin saltos.
+const LAYER_COUNT = 6;
+
+function groupStars(stars, light) {
+  const groups = Array.from({ length: LAYER_COUNT }, () => []);
+  stars.forEach((star, index) => {
+    const group = groups[index % LAYER_COUNT];
+    const x = star.left.toFixed(2);
+    const phase = ((-star.riseDelay / star.riseDuration) % 1 + 1) % 1;
+    const y = light ? star.top : (210 - phase * 120) % 100;
+    const spread = (star.size / 2).toFixed(2);
+    const fill = light
+      ? (star.accent ? "rgb(251 191 36 / 0.85)" : "rgb(255 255 255 / 0.75)")
+      : (star.accent ? "rgb(74 222 128 / 0.75)" : "rgb(255 255 255 / 0.38)");
+    for (const top of light ? [y] : [y, y + 100]) {
+      group.push(x + "vw " + top.toFixed(2) + "vh 0 " + spread + "px " + fill);
+    }
+  });
+  return groups.map((points, index) => ({
+    boxShadow: points.join(","),
+    animation: light
+      ? "star-bob " + (5 + index * 0.6) + "s ease-in-out " + (-index) + "s infinite, star-twinkle-soft " + (3 + index * 0.3) + "s ease-in-out " + (-index) + "s infinite"
+      : "star-rise " + (22 + index * 3) + "s linear " + (-index * 2) + "s infinite, star-twinkle " + (3 + index * 0.3) + "s ease-in-out " + (-index) + "s infinite",
+  }));
+}
+
+const DARK_LAYERS = groupStars(DARK_STARS, false);
+const LIGHT_LAYERS = groupStars(LIGHT_STARS, true);
 
 // Estrellas fugaces (mismas para ambos temas).
 // Solo DOS elementos: eso garantiza que nunca haya más de dos fugaces a la
@@ -100,63 +130,30 @@ export default function Starfield() {
   }, []);
 
   // Selecciona las estrellas pre-generadas según el tema.
-  const stars = isLight ? LIGHT_STARS : DARK_STARS;
+  const layers = isLight ? LIGHT_LAYERS : DARK_LAYERS;
 
   return (
     <div
       aria-hidden="true"
       data-starfield
+      data-star-count={isLight ? LIGHT_STARS.length : DARK_STARS.length}
       className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-[var(--bg-page)] [contain:paint]"
     >
-      {/* Estrellas: ascienden (dark) o flotan (light). Con reduced motion
-          quedan fijas; lo controla globals.css para no romper la hidratación. */}
-      {stars.map((star, i) => {
-        const animation = isLight
-          ? `star-bob ${star.bobDuration}s ease-in-out ${star.bobDelay}s infinite, star-twinkle-soft ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`
-          : `star-rise ${star.riseDuration}s linear ${star.riseDelay}s infinite, star-twinkle ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`;
-
-        const colorClass = isLight
-          ? star.accent
-            ? 'bg-amber-400/90'
-            : 'bg-white/80'
-          : star.accent
-            ? i % 3 === 0
-              ? 'bg-green-400/80'
-              : 'bg-emerald-500/80'
-            : 'bg-white/40';
-
-        const glow = isLight
-          ? star.accent
-            ? '0 0 8px rgba(251,191,36,0.95)'
-            : '0 0 6px rgba(255,255,255,0.7)'
-          : star.accent
-            ? i % 3 === 0
-              ? '0 0 6px rgba(74,222,128,0.9)'
-              : '0 0 6px rgba(16,185,129,0.9)'
-            : '0 0 3px rgba(255,255,255,0.25)';
-
-        return (
-          <span
-            key={i}
-            className={`absolute rounded-full ${colorClass}`}
-            style={{
-              left: `${star.left}%`,
-              top: isLight ? `${star.top}%` : '110%',
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              boxShadow: glow,
-              animation,
-            }}
-          />
-        );
-      })}
+      {layers.map((layer, index) => (
+        <span
+          key={index}
+          data-star-layer
+          className="absolute top-0 left-0 size-px rounded-full"
+          style={layer}
+        />
+      ))}
 
       {/* Estrellas fugaces: se ocultan con reduced motion desde CSS. */}
       {SHOOTING.map((s, i) => (
         <span
           key={`shoot-${i}`}
           data-motion-decorative
-          className={`absolute h-px w-24 ${
+          className={`absolute h-px w-24 opacity-0 ${
             isLight
               ? 'bg-gradient-to-r from-amber-400 via-orange-400/50 to-transparent'
               : 'bg-gradient-to-r from-green-400 via-emerald-400/50 to-transparent'
@@ -167,6 +164,7 @@ export default function Starfield() {
             // `both` es clave: aplica el primer keyframe (opacity 0) DURANTE
             // el delay. Sin eso, el span se veía como una línea horizontal
             // estática antes de que empezara la animación.
+            rotate: '-35deg',
             animation: `shoot ${s.duration}s linear ${s.delay}s infinite both`,
           }}
         />

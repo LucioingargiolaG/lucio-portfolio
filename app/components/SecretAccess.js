@@ -5,7 +5,7 @@
  *  1. Tecleá la palabra "papanata" en cualquier parte de la página.
  *  2. Aparece un candado flotante arriba a la derecha (6 segundos).
  *  3. Al clickearlo, se abre un input de contraseña que "emerge" de la foto
- *     de perfil (animación con framer-motion y posicionamiento calculado).
+ *     de perfil (animación CSS y posicionamiento calculado).
  *  4. Si la contraseña es correcta (validada contra /api/admin/verify, que
  *     firma una cookie HttpOnly de sesión), te redirige a /admin.
  *
@@ -16,7 +16,6 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X, LogIn } from 'lucide-react';
 
 // Palabra secreta que hay que teclear para que aparezca el candado.
@@ -208,21 +207,16 @@ export default function SecretAccess() {
   };
 
   // Vector de "retorno": de dónde viene y a dónde vuelve la animación.
-  // exitX/Y = distancia entre el centro de la tarjeta y el origen (foto).
+  // exitX/Y calculan la distancia entre el centro de la tarjeta y el origen (foto).
   const exitX = pos ? pos.cx - (pos.left + CARD_W / 2) : 0;
   const exitY = pos ? pos.cy - (pos.top + CARD_H / 2) : 0;
 
   return (
     <>
       {/* Candado flotante */}
-      <AnimatePresence>
         {showLock && !open && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.8 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-24 right-6 z-40"
+          <div
+            className="secret-lock-entry fixed top-24 right-6 z-40"
           >
             <button
               type="button"
@@ -233,28 +227,24 @@ export default function SecretAccess() {
             >
               <Lock size={18} />
             </button>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* Input de verificación que emerge de la foto de perfil */}
-      <AnimatePresence>
         {open && pos && (
-          <motion.div
+          <div
             key="admin-card"
-            initial={{ opacity: 0, scale: 0.2, x: exitX, y: exitY }}
-            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-            exit={{ opacity: 0, scale: 0.2, x: exitX, y: exitY }}
-            transition={{ type: 'spring', stiffness: 200, damping: 22 }}
             style={{
               position: 'fixed',
               left: pos.left,
               top: pos.top,
               width: CARD_W,
+              '--entry-x': exitX + 'px',
+              '--entry-y': exitY + 'px',
               maxWidth: 'calc(100vw - 2rem)',
               zIndex: 40,
             }}
-            className="pointer-events-auto"
+            className="secret-card-entry pointer-events-auto"
             role="dialog"
             aria-modal="true"
             aria-label="Acceso privado"
@@ -305,9 +295,8 @@ export default function SecretAccess() {
                 {loading ? 'Verificando…' : 'Ingresar'}
               </button>
             </form>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </>
   );
 }

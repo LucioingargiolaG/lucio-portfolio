@@ -12,6 +12,8 @@
  */
 'use client';
 
+import Image from "next/image";
+
 import { useRef } from 'react';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
@@ -67,7 +69,7 @@ export default function ProjectsSection({ projects }) {
   return (
     <>
       <section
-        id="proyectos"
+        id="proyectos" tabIndex={-1}
         className="scroll-mt-[64px] lg:scroll-mt-[84px] bg-[var(--bg-section-glass)] max-w-7xl mx-auto px-6 py-16 md:py-20"
       >
       {/* Jerarquía: título y descripción primero; después las tarjetas (UTAP
@@ -110,8 +112,11 @@ export default function ProjectsSection({ projects }) {
                     {typeof project.image === 'string' &&
                     (project.image.startsWith('/') || project.image.startsWith('http')) ? (
                       /* Imagen real: cubre todo el panel */
-                      <img
+                      <Image
                         src={project.image}
+                        fill
+                        sizes="(max-width: 639px) 82vw, (max-width: 1023px) 48vw, 370px"
+                        unoptimized={project.image !== "/proyectos/menu-utap.png"}
                         alt={project.title}
                         loading="lazy"
                         className="absolute inset-0 h-full w-full object-cover"
@@ -184,7 +189,7 @@ export default function ProjectsSection({ projects }) {
         <button
           type="button"
           onClick={() => scroll(-1)}
-          aria-label="Anterior"
+          aria-label={t.projects.previous}
           className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
         >
           <ChevronLeft size={20} />
@@ -193,7 +198,7 @@ export default function ProjectsSection({ projects }) {
         <button
           type="button"
           onClick={() => scroll(1)}
-          aria-label="Siguiente"
+          aria-label={t.projects.next}
           className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-black/50 hover:bg-black/70 text-white opacity-70 hover:opacity-100 rounded-full p-2 transition-all cursor-pointer"
         >
           <ChevronRight size={20} />
@@ -209,6 +214,7 @@ export default function ProjectsSection({ projects }) {
         <div className="flex flex-wrap items-center gap-4">
           <Link
             href="/proyectos"
+            prefetch={false}
             className="inline-flex items-center gap-2 rounded-full border border-[var(--neon-line-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--ink)] transition-all duration-300 hover:border-[var(--neon)] hover:text-[var(--neon)]"
           >
             {t.projects.viewAll}

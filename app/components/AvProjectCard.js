@@ -18,6 +18,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { Play } from "lucide-react";
 import { useLanguage } from "@/app/context/LanguageContext";
 import FadeInUp from "./FadeInUp";
@@ -56,21 +57,25 @@ export default function AvProjectCard({ project, categoryName, delay = 0 }) {
               <>
                 {/* Fondo: la misma miniatura desenfocada y ampliada, para
                     completar el espacio que deja el encuadre original. */}
-                <img
+                <Image
                   src={project.thumbnailUrl}
                   alt=""
                   aria-hidden="true"
+                  fill
+                  unoptimized
                   loading="lazy"
                   decoding="async"
-                  className="absolute inset-0 h-full w-full scale-125 object-cover opacity-70 blur-2xl"
+                  className="scale-125 object-cover opacity-70 blur-2xl"
                 />
                 {/* Miniatura original: contenida, sin deformar ni recortar */}
-                <img
+                <Image
                   src={project.thumbnailUrl}
                   alt={project.title}
+                  fill
+                  unoptimized
                   loading="lazy"
                   decoding="async"
-                  className="relative h-full w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                  className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                 />
               </>
             ) : (
@@ -98,9 +103,9 @@ export default function AvProjectCard({ project, categoryName, delay = 0 }) {
 
           {/* Título + categoría debajo de la miniatura (jerarquía editorial) */}
           <div className="flex flex-1 flex-col gap-1.5 p-4">
-            <h3 className="line-clamp-2 text-sm font-bold leading-snug text-[var(--ink-strong)] transition-colors duration-300 group-hover:text-[var(--accent)]">
+            <h2 className="line-clamp-2 text-sm font-bold leading-snug text-[var(--ink-strong)] transition-colors duration-300 group-hover:text-[var(--accent)]">
               {project.title}
-            </h3>
+            </h2>
             {categoryName && (
               <span className="mt-auto font-mono text-[10px] font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
                 {categoryName}

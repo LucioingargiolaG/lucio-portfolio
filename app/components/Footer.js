@@ -22,6 +22,7 @@ import {
   SiMongodb,
 } from 'react-icons/si';
 import { useLanguage } from '@/app/context/LanguageContext';
+import { usePathname } from 'next/navigation';
 import { useMode } from '@/app/context/ModeContext';
 import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, LINKS } from '@/lib/site';
 import { LanguageSwitch } from './Navbar';
@@ -49,6 +50,7 @@ const techStack = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const pathname = usePathname();
   const { setMode } = useMode();
 
   // Igual que en el Navbar: hace scroll suave a la sección, y si no existe
@@ -73,6 +75,8 @@ export default function Footer() {
 
   const colTitleClass =
     'font-mono mb-4 text-xs font-bold uppercase tracking-widest text-[var(--ink-strong)]';
+
+  if (pathname !== "/") return null;
 
   return (
     <footer className="relative border-t border-[var(--line)] bg-[var(--bg-section-glass)] px-4 pb-8 pt-16">
@@ -102,7 +106,7 @@ export default function Footer() {
                   aria-label="GitHub"
                   className={socialClass}
                 >
-                  <SiGithub size={18} />
+                  <SiGithub size={18} aria-hidden="true" />
                 </a>
                 <a
                   href={LINKS.linkedin}
@@ -120,7 +124,7 @@ export default function Footer() {
                   aria-label="Instagram"
                   className={socialClass}
                 >
-                  <SiInstagram size={18} />
+                  <SiInstagram size={18} aria-hidden="true" />
                 </a>
                 <a
                   href={CONTACT_EMAIL_HREF}
@@ -174,13 +178,13 @@ export default function Footer() {
         </div>
 
         {/* Carrusel de tecnologías (marquee infinito, se duplica el array) */}
-        <div className="mt-12 border-t border-[var(--line)] pt-8 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
+        <div aria-hidden="true" className="mt-12 border-t border-[var(--line)] pt-8 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]">
           <div className="flex w-max animate-marquee gap-6 hover:[animation-play-state:paused]">
             {[...techStack, ...techStack].map(({ label, Icon }, i) => (
               <span
                 key={`${label}-${i}`}
                 title={label}
-                className="flex shrink-0 items-center gap-1.5 text-[var(--ink-faint)] opacity-60 transition-opacity duration-300 hover:opacity-100"
+                className="flex shrink-0 items-center gap-1.5 text-[var(--ink-soft)]"
               >
                 <Icon size={18} className="text-[var(--accent)]" />
                 <span className="font-mono text-xs">{label}</span>
@@ -211,7 +215,7 @@ export default function Footer() {
 
             {/* Switch de idioma */}
             <div className="flex justify-center sm:justify-end">
-              <LanguageSwitch uid="footer" />
+              <LanguageSwitch />
             </div>
           </div>
         </div>

@@ -10,11 +10,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Las imágenes se sirven sin optimización (sin el servicio de
-    // optimización de Next). Útil para exportaciones estáticas (out/)
-    // o cuando se despliega en plataformas sin soporte de optimización
-    // de imágenes (por ej. hosting estático o Netlify).
-    unoptimized: true,
+    localPatterns: [{ pathname: "/proyectos/menu-utap.png", search: "" }],
+  },
+  poweredByHeader: false,
+  async headers() {
+    return [{
+      source: "/:path*",
+      headers: [
+        { key: "X-Content-Type-Options", value: "nosniff" },
+        { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+        { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+        { key: "Content-Security-Policy", value: "frame-ancestors 'self'; object-src 'none'; base-uri 'self'" },
+      ],
+    }];
   },
   async redirects() {
     return [
