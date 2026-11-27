@@ -15,7 +15,7 @@ import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { useLanguage } from "@/app/context/LanguageContext";
-import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/site";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, LINKS } from "@/lib/site";
 import FadeInUp from "./FadeInUp";
 import Volver from "./Volver";
 
@@ -164,7 +164,7 @@ export default function ContactSection() {
               </div>
             </a>
 
-            <a href="https://instagram.com/lucio.ingargiola" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-50">
+            <a href={LINKS.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-50">
               <div className="w-12 h-12 rounded-xl bg-accent-10 flex items-center justify-center text-[var(--accent)]">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />

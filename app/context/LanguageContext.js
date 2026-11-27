@@ -78,7 +78,7 @@ const translations = {
       mainTitle: "Transformo ideas en experiencias digitales.",
       available: "Disponible para proyectos de pequeños negocios",
       description:
-        "Combino tecnología, diseño y estrategia para construir soluciones digitales que aporten valor a tu negocio.",
+        "Desarrollo soluciones digitales que ayudan a los negocios a conectar con sus clientes, comunicar su valor y simplificar su gestión.",
       viewProjects: "Ver mi trabajo",
       cv: "CV",
       contact: "Hablemos",
@@ -486,7 +486,7 @@ const translations = {
       mainTitle: "I turn ideas into digital experiences.",
       available: "Available for small business projects",
       description:
-        "I combine technology, design and strategy to build digital solutions that add value to your business.",
+        "I develop digital solutions that help businesses connect with their customers, communicate their value, and simplify their operations.",
       viewProjects: "View My Work",
       cv: "CV",
       contact: "Let's Talk",
