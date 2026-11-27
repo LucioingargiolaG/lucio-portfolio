@@ -128,12 +128,12 @@ const translations = {
       titleAccent: "Menú digital",
       subtitle:
         "Un menú digital con QR y panel de administración, en uso real.",
-      problemTitle: "La necesidad",
+      problemTitle: "El desafío",
       problem:
-        "La hamburguesería necesitaba una carta accesible desde el celular, sin instalar una app ni pedir login a los clientes. También necesitaba poder actualizar productos, precios y horarios sin depender de un desarrollador.",
+        "Digitalizar la carta de una hamburguesería para mejorar la experiencia de sus clientes y simplificar la gestión diaria del negocio.",
       solutionTitle: "La solución",
       solution:
-        "Desarrollé una aplicación web con Next.js que muestra el menú público al escanear un QR y suma un panel privado para que el dueño gestione el contenido. El menú se revalida automáticamente para reflejar los cambios.",
+        "Una plataforma web que permite consultar el menú desde cualquier dispositivo mediante un código QR, sin necesidad de descargar aplicaciones. Incluye un panel de administración desde el cual el negocio puede gestionar sus productos, precios y horarios de forma autónoma.",
       featuresTitle: "Funcionalidades principales",
       features: [
         "Menú público accesible por QR, sin login",
@@ -162,9 +162,9 @@ const translations = {
       viewCode: "Ver código",
       viewCase: "Ver caso de estudio",
       used: "En uso real",
-      developmentTitle: "Mi desarrollo",
+      developmentTitle: "Mi participación",
       development:
-        "Desarrollé el producto completo: estructura del menú, funcionalidad con QR y panel de administración, hasta el deploy que tiene hoy.",
+        "Diseñé y desarrollé la plataforma de principio a fin, desde la definición de las funcionalidades y el diseño de la interfaz hasta la implementación del sistema de administración, la integración con la base de datos y su puesta en producción.",
       exploreDetail: "Explorá el detalle del caso",
       contactCTA: "Hablemos",
     },
@@ -313,7 +313,7 @@ const translations = {
       subtitle:
         "Historias que conectan. Contenido que comunica.",
       description:
-        "Una selección de trabajos de edición de video y creación de contenido para marcas, proyectos culturales y redes sociales.",
+        "Contenido audiovisual pensado para potenciar la identidad de cada marca, transmitir su mensaje y conectar con su audiencia.",
       back: "Volver al inicio",
       categories: "Categorías",
       filterAll: "Todos",
@@ -536,12 +536,12 @@ const translations = {
       titleAccent: "Digital Menu",
       subtitle:
         "A QR digital menu with an admin dashboard, running in a real business.",
-      problemTitle: "The need",
+      problemTitle: "The challenge",
       problem:
-        "The burger restaurant needed a menu customers could open on their phones without installing an app or logging in. The owner also needed to update products, prices, and opening hours without depending on a developer.",
+        "Digitize the menu of a burger restaurant to improve the customer experience and simplify the day-to-day management of the business.",
       solutionTitle: "The solution",
       solution:
-        "I built a Next.js web application that shows the public menu after scanning a QR code and includes a private dashboard for the owner to manage content. The menu revalidates automatically so changes appear without a redeploy.",
+        "A web platform that lets customers open the menu on any device by scanning a QR code, with no app download required. It also includes an admin dashboard where the business can manage products, prices, and opening hours independently.",
       featuresTitle: "Main features",
       features: [
         "Public menu accessible by QR, no login required",
@@ -570,9 +570,9 @@ const translations = {
       viewCode: "View code",
       viewCase: "View case study",
       used: "In real use",
-      developmentTitle: "My development",
+      developmentTitle: "My role",
       development:
-        "I developed the product in full: menu structure, QR functionality and the admin dashboard, including the deploy that runs today.",
+        "I designed and developed the platform end to end, from defining the functionality and designing the interface to implementing the admin system, integrating the database, and taking it to production.",
       exploreDetail: "Explore the case in detail",
       contactCTA: "Let's talk",
     },
@@ -720,7 +720,7 @@ const translations = {
       subtitle:
         "Stories that connect. Content that communicates.",
       description:
-        "A selection of video editing and content creation for brands, cultural projects and social networks.",
+        "Audiovisual content designed to strengthen each brand’s identity, communicate its message, and connect with its audience.",
       back: "Back to home",
       categories: "Categories",
       filterAll: "All",

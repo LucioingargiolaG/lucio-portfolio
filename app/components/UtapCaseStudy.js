@@ -7,9 +7,9 @@
  *  - CTA "Ver menú en vivo" (UTAP en vivo) + CTA "Explorá el detalle del caso"
  *    (página de detalle de UTAP, si existe — enlace verificado en la ejecución
  *    de auditoría: el carrusel de la home enlaza a /proyectos/6a8cb62c4ad2001b725f9783).
- *  - Necesidad del negocio.
- *  - Solución.
- *  - Mi desarrollo (responsabilidad del desarrollo).
+ *  - El desafío.
+ *  - La solución.
+ *  - Mi participación.
  *  - Funcionalidades verificadas.
  *  - Tecnologías verificadas.
  *  - Decisiones de diseño y UX.
@@ -146,7 +146,7 @@ export default function UtapCaseStudy() {
 
           {/* Columna derecha: contenido del caso */}
           <div className="space-y-8">
-            {/* Necesidad del negocio */}
+            {/* El desafío */}
             <FadeIn delay={300}>
               <div>
                 <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
@@ -166,7 +166,7 @@ export default function UtapCaseStudy() {
               </div>
             </FadeIn>
 
-            {/* Mi desarrollo (responsabilidad del desarrollo) */}
+            {/* Mi participación */}
             <FadeIn delay={500}>
               <div>
                 <h3 className="mb-3 font-mono text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
