@@ -14,6 +14,8 @@
 import { connectToDatabase } from "@/lib/mongodb";
 import Project from "@/models/Project";
 import HeroSection from "./components/HeroSection";
+import ServicesSection from "./components/ServicesSection";
+import UtapCaseStudy from "./components/UtapCaseStudy";
 import HowIWorkSection from "./components/HowIWorkSection";
 import MarketingSection from "./components/MarketingSection";
 import RecruitmentView from "./components/RecruitmentView";
@@ -41,6 +43,7 @@ export default async function Home() {
       description: p.description,
       technologies: p.technologies ?? [],
       githubUrl: p.githubUrl,
+      demoUrl: p.demoUrl ?? "",
       category: p.category,
       architecture: p.architecture,
       image: p.image ?? "🛒",
@@ -57,6 +60,8 @@ export default async function Home() {
   return (
     <>
       <HeroSection /> {/* portada con foto, CV y stack */}
+      <ServicesSection /> {/* qué servicios ofrezco */}
+      <UtapCaseStudy /> {/* prueba real: menú digital en uso */}
       <ProjectsSection projects={projects} /> {/* carrusel de proyectos */}
       <HowIWorkSection /> {/* metodología / pilares */}
       <MarketingSection /> {/* servicios de marketing digital */}

@@ -17,37 +17,39 @@ import Link from 'next/link';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
+import { featuredDescription, featuredKey, featuredRank } from '@/lib/projectCopy';
 import Volver from './Volver';
 
-// Proyectos de respaldo cuando MongoDB no tiene datos o no está conectado.
+// Proyectos reales de respaldo por si MongoDB no está disponible en el
+// momento de renderizar. Son datos verificables, no proyectos inventados.
 const fallbackProjects = [
   {
-    _id: 'fallback-1',
-    title: 'E-commerce Store',
-    description: 'Tienda online con carrito y checkout.',
-    technologies: ['Next.js', 'Tailwind', 'Stripe'],
-    image: '🛒',
+    _id: 'fallback-utap',
+    title: 'UTAP · Menú Digital',
+    description:
+      'Menú digital con QR y panel de administración para una hamburguesería.',
+    technologies: ['Next.js 16', 'TypeScript', 'MongoDB Atlas', 'Prisma'],
+    image: '/proyectos/menu-utap.png',
+    category: 'web',
   },
   {
-    _id: 'fallback-2',
-    title: 'Landing Page',
-    description: 'Landing optimizada para conversión.',
-    technologies: ['React', 'Framer Motion'],
-    image: '🚀',
-  },
-  {
-    _id: 'fallback-3',
-    title: 'Dashboard Analytics',
-    description: 'Panel con gráficos en tiempo real.',
-    technologies: ['Angular', 'Node.js', 'Chart.js'],
-    image: '📊',
+    _id: 'fallback-portfolio',
+    title: 'Portfolio Personal',
+    description:
+      'Este mismo sitio: Next.js, React y MongoDB, con panel de administración.',
+    technologies: ['Next.js 16', 'React 19', 'MongoDB Atlas', 'Framer Motion'],
+    image: '/proyectos/portfolio.png',
+    category: 'web',
   },
 ];
 
 export default function ProjectsSection({ projects }) {
   const { t } = useLanguage();
   const { mode } = useMode();
-  const items = projects.length > 0 ? projects : fallbackProjects;
+  // Orden editorial: UTAP primero, Portfolio Personal segundo y el resto por
+  // fecha (mismo criterio que /proyectos).
+  const source = projects.length > 0 ? projects : fallbackProjects;
+  const items = [...source].sort((a, b) => featuredRank(a) - featuredRank(b));
   const trackRef = useRef(null); // ref al contenedor deslizable del carrusel
 
   if (mode !== 'web') return null;
@@ -66,10 +68,22 @@ export default function ProjectsSection({ projects }) {
     <>
       <section
         id="proyectos"
-        className="bg-[var(--bg-section-glass)] grid grid-cols-1 md:grid-cols-12 gap-12 items-center max-w-7xl mx-auto px-6 py-24"
+        className="scroll-mt-[64px] lg:scroll-mt-[84px] bg-[var(--bg-section-glass)] max-w-7xl mx-auto px-6 py-16 md:py-20"
       >
-      {/* Carrusel (columna izquierda, 7/12 del ancho) */}
-      <div className="md:col-span-7 relative">
+      {/* Jerarquía: título y descripción primero; después las tarjetas (UTAP
+          y Portfolio) y, por último, la invitación comercial. En móvil todo
+          queda apilado en ese mismo orden. */}
+      <div className="max-w-3xl mb-10 md:mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink-strong)] mb-4 tracking-tight">
+          {t.projects.carouselTitle}
+        </h2>
+        <p className="text-[var(--ink-soft)] leading-relaxed">
+          {t.projects.carouselDesc}
+        </p>
+      </div>
+
+      {/* Carrusel: ancho completo, después del encabezado */}
+      <div className="relative">
         <div
           ref={trackRef}
           className="no-scrollbar flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-4 py-2"
@@ -80,7 +94,14 @@ export default function ProjectsSection({ projects }) {
               data-card
               className="snap-center shrink-0 w-[300px] md:w-[340px] flex"
             >
-              <Link href="/proyectos" className="block w-full">
+              <Link
+                href={
+                  project._id.startsWith('fallback')
+                    ? '/proyectos'
+                    : `/proyectos/${project._id}`
+                }
+                className="block w-full"
+              >
                 <article className="group relative w-full overflow-hidden rounded-2xl border border-[var(--neon-line)] bg-[var(--bg-card)] flex flex-col transition-all duration-300 hover:border-[var(--neon)] hover:shadow-[0_0_40px_var(--neon-glow)]">
                   {/* Panel visual: fondo con patrón de puntos + emoji del proyecto */}
                   <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-[var(--bg-section-alt)] to-[var(--bg-section)]">
@@ -118,11 +139,15 @@ export default function ProjectsSection({ projects }) {
                     <h3 className="text-lg font-bold text-[var(--ink-strong)] transition-colors duration-300 group-hover:text-[var(--neon)]">
                       {project.title}
                     </h3>
-                    {/* Descripción (máx. 2 líneas) */}
-                    {project.description && (
-                      <p className="line-clamp-2 text-xs leading-relaxed text-[var(--ink-soft)]">
-                        {project.description}
-                      </p>
+                    {/* Descripción aprobada (máx. 2 líneas) */}
+                    <p className="line-clamp-2 text-xs leading-relaxed text-[var(--ink-soft)]">
+                      {featuredDescription(project, t)}
+                    </p>
+                    {/* UTAP: proyecto en uso real */}
+                    {featuredKey(project) === 'utap' && (
+                      <span className="inline-flex w-fit items-center gap-1 rounded-full border border-[var(--neon-line)] bg-[var(--bg-section)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--neon)]">
+                        {t.projects.featured.utapInUse}
+                      </span>
                     )}
                     {/* Chips de tecnologías (primeras 3 + "+N") */}
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -175,28 +200,32 @@ export default function ProjectsSection({ projects }) {
         </button>
       </div>
 
-      {/* Texto explicativo (columna derecha, 5/12) */}
-      <div className="md:col-span-5">
-        <h2 className="text-3xl md:text-4xl font-bold text-[var(--ink-strong)] mb-6 tracking-tight">
-          {t.projects.carouselTitle}
-        </h2>
-        <p className="text-[var(--ink-soft)] mb-6 leading-relaxed">
-          {t.projects.carouselDesc}
-        </p>
+      {/* Texto comercial: después de las tarjetas en todos los viewports */}
+      <div className="mt-12 md:mt-14 max-w-3xl">
         <h3 className="text-2xl font-semibold text-[var(--ink-strong)] mb-1">
           {t.projects.talkSubtitle}
         </h3>
         <p className="text-[var(--ink-soft)] mb-8">{t.projects.talkText}</p>
-        {/* Input decorativo de "tu nombre" (sin funcionalidad real aún) */}
-        <input
-          type="text"
-          placeholder={t.projects.namePlaceholder}
-          className="w-full bg-transparent border-b border-[var(--line-medium)] pb-3 text-sm text-[var(--ink-strong)] placeholder:text-[var(--ink-faint)] focus:outline-none focus:border-accent transition-colors"
-        />
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/proyectos"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--neon-line-strong)] px-5 py-2.5 text-sm font-semibold text-[var(--ink)] transition-all duration-300 hover:border-[var(--neon)] hover:text-[var(--neon)]"
+          >
+            {t.projects.viewAll}
+            <ArrowRight size={16} />
+          </Link>
+          <Link
+            href="#contacto"
+            className="link-pretty text-sm font-bold text-[var(--neon)]"
+          >
+            {t.hero.contact}
+          </Link>
+        </div>
       </div>
       </section>
-      {/* Botón volver */}
-      <Volver />
+      {/* Botón volver: el margen propio del componente se compensa un poco
+          para que esta sección no termine con un hueco excesivo. */}
+      <div className="-mt-6"><Volver /></div>
     </>
   );
 }

@@ -22,6 +22,9 @@ const AdminSchema = new Schema(
       type: String,
       required: [true, "El hash de contraseña es requerido"],
     },
+    // Fecha de la última actualización de contraseña: se usa para
+    // revocar sesiones emitidas antes del cambio (lib/auth.js).
+    passwordChangedAt: { type: Date, default: null },
   },
   {
     timestamps: true, // agrega createdAt y updatedAt automáticamente

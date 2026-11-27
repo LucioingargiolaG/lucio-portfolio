@@ -13,6 +13,7 @@
  */
 'use client';
 
+import { useEffect } from 'react';
 import { useTheme } from '@/app/context/ThemeProvider';
 
 // Generador aleatorio con semilla (mulberry32): produce valores
@@ -62,13 +63,16 @@ const DARK_STARS = generateStars(false, mulberry32(42));
 const LIGHT_STARS = generateStars(true, mulberry32(99));
 
 // Estrellas fugaces (mismas para ambos temas).
+// Solo DOS elementos: eso garantiza que nunca haya más de dos fugaces a la
+// vez. Cada ciclo es largo y la "visibilidad" ocupa apenas un tramo corto,
+// con fases distintas para que aparezcan escalonadas y no al unísono.
 const SHOOTING = (() => {
   const rng = mulberry32(7);
-  return Array.from({ length: 7 }, (_, i) => ({
-    top: rand(rng, 5, 50),
-    left: rand(rng, 10, 90),
-    duration: rand(rng, 4, 7),
-    delay: rand(rng, 1, 5) + i * 2,
+  return Array.from({ length: 2 }, (_, i) => ({
+    top: rand(rng, 5, 35),
+    left: rand(rng, 48, 86),
+    duration: i === 0 ? 11 : 17,
+    delay: i === 0 ? 2 : 8,
   }));
 })();
 
@@ -76,15 +80,36 @@ export default function Starfield() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
+  // Optimización de recursos: al ocultar la pestaña solo se marca el
+  // documento con `data-tab-hidden` y globals.css pausa todas las
+  // animaciones (animation-play-state). ANTES se desmontaba el componente,
+  // lo que al volver reproducía las estrellas desde cero (salto/parpadeo).
+  // Así las estrellas siguen continuas y no hay re-renders innecesarios.
+  useEffect(() => {
+    const syncVisibility = () => {
+      document.documentElement.dataset.tabHidden = document.hidden
+        ? 'true'
+        : 'false';
+    };
+    syncVisibility();
+    document.addEventListener('visibilitychange', syncVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', syncVisibility);
+      delete document.documentElement.dataset.tabHidden;
+    };
+  }, []);
+
   // Selecciona las estrellas pre-generadas según el tema.
   const stars = isLight ? LIGHT_STARS : DARK_STARS;
 
   return (
     <div
       aria-hidden="true"
-      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-[var(--bg-page)]"
+      data-starfield
+      className="fixed inset-0 -z-10 overflow-hidden pointer-events-none select-none bg-[var(--bg-page)] [contain:paint]"
     >
-      {/* Estrellas: ascienden (dark) o flotan (light) */}
+      {/* Estrellas: ascienden (dark) o flotan (light). Con reduced motion
+          quedan fijas; lo controla globals.css para no romper la hidratación. */}
       {stars.map((star, i) => {
         const animation = isLight
           ? `star-bob ${star.bobDuration}s ease-in-out ${star.bobDelay}s infinite, star-twinkle-soft ${star.twinkleDuration}s ease-in-out ${star.twinkleDelay}s infinite`
@@ -126,10 +151,11 @@ export default function Starfield() {
         );
       })}
 
-      {/* Estrellas fugaces */}
+      {/* Estrellas fugaces: se ocultan con reduced motion desde CSS. */}
       {SHOOTING.map((s, i) => (
         <span
           key={`shoot-${i}`}
+          data-motion-decorative
           className={`absolute h-px w-24 ${
             isLight
               ? 'bg-gradient-to-r from-amber-400 via-orange-400/50 to-transparent'
@@ -138,17 +164,29 @@ export default function Starfield() {
           style={{
             top: `${s.top}%`,
             left: `${s.left}%`,
-            animation: `shoot ${s.duration}s ease-out ${s.delay}s infinite`,
+            // `both` es clave: aplica el primer keyframe (opacity 0) DURANTE
+            // el delay. Sin eso, el span se veía como una línea horizontal
+            // estática antes de que empezara la animación.
+            animation: `shoot ${s.duration}s linear ${s.delay}s infinite both`,
           }}
         />
       ))}
 
-      {/* Orbes de luz (solo light) */}
+      {/* Orbes de luz (solo light): se ocultan con reduced motion desde CSS. */}
       {isLight && (
         <>
-          <div className="absolute -top-20 left-[10%] w-72 h-72 rounded-full bg-amber-400/15 blur-3xl animate-[orb-float_26s_ease-in-out_infinite]" />
-          <div className="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-orange-400/15 blur-3xl animate-[orb-float_30s_ease-in-out_2s_infinite]" />
-          <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-rose-300/15 blur-3xl animate-[orb-float_28s_ease-in-out_1s_infinite]" />
+          <div
+            data-motion-decorative
+            className="absolute -top-20 left-[10%] w-72 h-72 rounded-full bg-amber-400/15 blur-3xl animate-[orb-float_26s_ease-in-out_infinite]"
+          />
+          <div
+            data-motion-decorative
+            className="absolute top-1/3 -right-24 w-80 h-80 rounded-full bg-orange-400/15 blur-3xl animate-[orb-float_30s_ease-in-out_2s_infinite]"
+          />
+          <div
+            data-motion-decorative
+            className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-rose-300/15 blur-3xl animate-[orb-float_28s_ease-in-out_1s_infinite]"
+          />
         </>
       )}
     </div>

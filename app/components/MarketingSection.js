@@ -4,7 +4,7 @@
  * Muestra servicios de marketing (landing pages, SEO, contenido, redes,
  * email y analítica) como tarjetas, un enlace destacado al Portafolio
  * Digital y un CTA final de contacto. Incluye un botón para descargar el
- * "CV de edición" (cv-edicion.pdf).
+ * "CV de edición" (CV_Edicion_ES.pdf / CV_Editing_EN.pdf).
  *
  * Solo se muestra en modo WEB.
  */
@@ -37,6 +37,7 @@ export default function MarketingSection() {
   const [cvOpen, setCvOpen] = useState(false);
   const [cvPos, setCvPos] = useState(null);
   const cvRef = useRef(null);
+  const cvMenuRef = useRef(null); // menú portal: no se cierra al hacer clic en él
 
   const toggleCv = () => {
     if (cvOpen) { setCvOpen(false); return; }
@@ -51,13 +52,19 @@ export default function MarketingSection() {
     if (!cvOpen) return;
     const close = () => setCvOpen(false);
     const onKey = (e) => { if (e.key === 'Escape') close(); };
+    // El menú está en un portal: sus clicks no deben desmontar el <a download>.
+    const onClick = (e) => {
+      if (cvRef.current?.contains(e.target)) return;
+      if (cvMenuRef.current?.contains(e.target)) return;
+      close();
+    };
     window.addEventListener('keydown', onKey);
-    document.addEventListener('click', close);
+    document.addEventListener('click', onClick);
     window.addEventListener('scroll', close, true);
     window.addEventListener('resize', close);
     return () => {
       window.removeEventListener('keydown', onKey);
-      document.removeEventListener('click', close);
+      document.removeEventListener('click', onClick);
       window.removeEventListener('scroll', close, true);
       window.removeEventListener('resize', close);
     };
@@ -71,7 +78,7 @@ export default function MarketingSection() {
   return (
     <section
       id="marketing"
-      className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative"
+      className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative"
     >
       <div className="max-w-6xl mx-auto">
         {/* Encabezado: badge de sección + descarga del CV de edición */}
@@ -99,6 +106,7 @@ export default function MarketingSection() {
                   <AnimatePresence>
                     {cvOpen && cvPos && (
                       <motion.div
+                        ref={cvMenuRef}
                         initial={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
                         animate={{ opacity: 1, x: '-50%', y: 0, scale: 1 }}
                         exit={{ opacity: 0, x: '-50%', y: -8, scale: 0.95 }}
@@ -113,7 +121,7 @@ export default function MarketingSection() {
                         className="w-60 rounded-2xl border border-[var(--line-soft)] bg-[var(--bg-nav-solid)] backdrop-blur-md p-2 shadow-xl shadow-black/40"
                       >
                         <a
-                          href="/cv-edicion.pdf"
+                          href="/CV_Edicion_ES.pdf"
                           download
                           onClick={() => setCvOpen(false)}
                           role="menuitem"
@@ -123,7 +131,7 @@ export default function MarketingSection() {
                           {t.marketing.cvEditingEs}
                         </a>
                         <a
-                          href="/cv-edicion-en.pdf"
+                          href="/CV_Editing_EN.pdf"
                           download
                           onClick={() => setCvOpen(false)}
                           role="menuitem"

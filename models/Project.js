@@ -39,6 +39,10 @@ const ProjectSchema = new Schema(
       type: String,
       required: [true, "La URL de GitHub es requerida"],
     },
+    demoUrl: {
+      type: String,
+      default: "",
+    },
     // Categoría del proyecto, solo admite estos 3 valores (enum).
     category: {
       type: String,

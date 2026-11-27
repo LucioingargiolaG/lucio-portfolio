@@ -70,7 +70,7 @@
   --ink: #f2ede3;
   --ink-soft: #a89f8d;
   --ink-muted: #837b6a;
-  --ink-faint: #524b3d;
+  --ink-faint: #8c8475; /* contraste mejorado (F4, tema oscuro): era #524b3d */
 
   --line: #1f1c17;
   --line-soft: rgba(255, 255, 255, 0.09);
@@ -147,7 +147,7 @@ html.light {
   --ink: #e8d5b8;
   --ink-soft: #c4a882;
   --ink-muted: #9a7d5c;
-  --ink-faint: #6d5640;
+  --ink-faint: #a68d76; /* contraste mejorado (F4, tema claro): era #6d5640 */
 
   --line: #2e2218;
   --line-soft: rgba(245, 200, 150, 0.1);
@@ -411,22 +411,32 @@ p {
   }
 }
 
-/* Hero: estrella fugaz que cruza la pantalla en diagonal */
+/* Estrella fugaz: trayectoria diagonal natural y estela que se desvanece.
+   Todos los keyframes definen `transform` para que la rotación nunca se
+   pierda en la interpolación; el tramo visible es corto (0–11% del ciclo)
+   y el resto del ciclo queda en opacity 0. Starfield.js aplica además
+   `animation-fill-mode: both` para que el delay inicial no muestre la
+   línea horizontal del estado base. */
 @keyframes shoot {
   0% {
+    opacity: 0;
     transform: translate3d(0, 0, 0) rotate(-35deg);
-    opacity: 0;
   }
-  8% {
-    opacity: 1;
+  2% {
+    opacity: 0.95;
+    transform: translate3d(-8vw, 5.5vw, 0) rotate(-35deg);
   }
-  30% {
-    transform: translate3d(-55vw, 38vw, 0) rotate(-35deg);
+  6% {
+    opacity: 0.5;
+    transform: translate3d(-34vw, 23.5vw, 0) rotate(-35deg);
+  }
+  11% {
     opacity: 0;
+    transform: translate3d(-62vw, 43vw, 0) rotate(-35deg);
   }
   100% {
-    transform: translate3d(-55vw, 38vw, 0) rotate(-35deg);
     opacity: 0;
+    transform: translate3d(-62vw, 43vw, 0) rotate(-35deg);
   }
 }
 
@@ -475,6 +485,21 @@ p {
   will-change: transform;
 }
 
+/* Transición entre páginas: solo opacidad, 180 ms, sin transform.
+   Se aplica en app/template.js y app/proyectos/template.js. */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-transition {
+  animation: page-enter 180ms ease-out both;
+}
+
 /* Oculta la barra de scroll en carruseles horizontales (scroll-snap) */
 .no-scrollbar {
   -ms-overflow-style: none;
@@ -502,9 +527,41 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
+  .animate-marquee,
+  .page-transition {
     animation: none;
   }
+
+  /* FadeInUp: visible y quieto desde el primer frame, sin depender de JS
+     (evita diferencias entre el HTML del servidor y el del cliente). */
+  .fade-in-up {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Starfield: mismas estrellas, pero fijas. Las fugaces y los orbes
+     decorativos se ocultan. Se resuelve en CSS (no en JS) para que el
+     HTML del servidor y el del cliente coincidan también con reduced
+     motion y no haya errores de hidratación. */
+  [data-starfield] span {
+    animation: none !important;
+  }
+
+  [data-starfield] [data-motion-decorative] {
+    display: none;
+  }
+}
+
+/* Pausa todas las animaciones CSS cuando la pestaña no está visible.
+   Starfield solo marca el atributo (ya no desmonta sus estrellas), así que
+   al volver la animación se reanuda donde estaba: sin reinicios ni saltos.
+   Esta regla cubre marquee, estrellas fugaces y cualquier otra animación
+   ambiental. */
+html[data-tab-hidden='true'] *,
+html[data-tab-hidden='true'] *::before,
+html[data-tab-hidden='true'] *::after {
+  animation-play-state: paused !important;
 }
 
 /* Enlace con subrayado deslizante + glow neón al hover */

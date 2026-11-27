@@ -3,7 +3,7 @@
  *
  * Muestra los 4 pilares de trabajo (código limpio, rendimiento, UX/UI,
  * aprendizaje continuo) como tarjetas con efecto 3D al hover, más una fila
- * de estadísticas. El contenido (títulos, pilares y stats) sale de las
+ * de estadísticas. El contenido (títulos y pilares) sale de las
  * traducciones en LanguageContext.
  *
  * Solo se muestra en modo WEB (si mode !== 'web' devuelve null).
@@ -11,6 +11,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'framer-motion';
 import { Bolt, Rocket, Palette, BookOpen } from 'lucide-react';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
@@ -24,10 +25,11 @@ const PILLAR_ICONS = { bolt: Bolt, rocket: Rocket, palette: Palette, book: BookO
 function useInViewFade() {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
+  const reduced = useReducedMotion(); // prefers-reduced-motion (F2)
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || reduced) return; // con reduce: sin animación, visible
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -39,22 +41,24 @@ function useInViewFade() {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [reduced]);
 
-  return { ref, inView };
+  return { ref, inView, reduced };
 }
 
 // Componente que aplica el fade-up a su contenido.
 function FadeInUp({ children, delay = 0, className = '' }) {
-  const { ref, inView } = useInViewFade();
+  const { ref, inView, reduced } = useInViewFade();
   return (
     <div
       ref={ref}
       className={className}
       style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(30px)',
-        transition: `opacity 0.6s ease-out ${delay}ms, transform 0.6s ease-out ${delay}ms`,
+        opacity: inView || reduced ? 1 : 0,
+        transform: reduced ? 'none' : inView ? 'translateY(0)' : 'translateY(30px)',
+        transition: reduced
+          ? 'none'
+          : `opacity 0.6s ease-out ${delay}ms, transform 0.6s ease-out ${delay}ms`,
       }}
     >
       {children}
@@ -69,7 +73,7 @@ export default function HowIWorkSection() {
   if (mode !== 'web') return null; // esta sección solo existe en modo web
 
   return (
-    <section id="como-trabajo" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
+    <section id="como-trabajo" className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)] relative">
       <div className="max-w-6xl mx-auto">
         {/* Badge de sección */}
         <FadeInUp>
@@ -88,7 +92,7 @@ export default function HowIWorkSection() {
         </FadeInUp>
 
         {/* Tarjetas de los pilares */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {t.howIWork.pillars.map((p, i) => {
             const Icon = PILLAR_ICONS[p.icon];
             return (
@@ -109,19 +113,6 @@ export default function HowIWorkSection() {
           })}
         </div>
 
-        {/* Fila de estadísticas */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {t.howIWork.stats.map((s, i) => (
-            <FadeInUp key={s.label} delay={100 * i + 300}>
-              <div className="rounded-xl p-5 text-center bg-[var(--bg-card)] border-[var(--line)] transition-all duration-300 hover:border-accent-40">
-                <strong className="text-3xl font-extrabold block text-[var(--accent)]">
-                  {s.value}
-                </strong>
-                <span className="text-xs mt-1 block text-[var(--ink-muted)]">{s.label}</span>
-              </div>
-            </FadeInUp>
-          ))}
-        </div>
       </div>
 
       {/* Botón volver */}
