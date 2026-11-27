@@ -22,7 +22,7 @@ import {
   SiMongodb,
 } from 'react-icons/si';
 import { useLanguage } from '@/app/context/LanguageContext';
-import { usePathname } from 'next/navigation';
+import { useSelectedLayoutSegment } from 'next/navigation';
 import { useMode } from '@/app/context/ModeContext';
 import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, LINKS } from '@/lib/site';
 import { LanguageSwitch } from './Navbar';
@@ -50,7 +50,7 @@ const techStack = [
 
 export default function Footer() {
   const { t } = useLanguage();
-  const pathname = usePathname();
+  const segment = useSelectedLayoutSegment();
   const { setMode } = useMode();
 
   // Igual que en el Navbar: hace scroll suave a la sección, y si no existe
@@ -76,7 +76,9 @@ export default function Footer() {
   const colTitleClass =
     'font-mono mb-4 text-xs font-bold uppercase tracking-widest text-[var(--ink-strong)]';
 
-  if (pathname !== "/") return null;
+  // El segmento de la portada es el mismo al prerenderizar y al hidratar,
+  // aunque Vercel use /index internamente y el navegador abra /.
+  if (segment !== null) return null;
 
   return (
     <footer className="relative border-t border-[var(--line)] bg-[var(--bg-section-glass)] px-4 pb-8 pt-16">

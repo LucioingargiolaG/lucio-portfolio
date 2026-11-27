@@ -53,6 +53,17 @@ await run('home render + lang es', async () => {
   return `h1="${h1.slice(0, 40)}", lang=${lang}`;
 });
 
+await run('footer en el HTML inicial solo en la portada', async () => {
+  for (const [path, expected] of [['/?lang=es', true], ['/?lang=en', true], ['/portfolio-digital', false]]) {
+    const response = await page.request.get(`${BASE}${path}`);
+    if (!response.ok()) throw new Error(`${path}: HTTP ${response.status()}`);
+    if (/<footer\b/.test(await response.text()) !== expected) {
+      throw new Error(`${path}: se esperaba el footer ${expected ? 'presente' : 'ausente'} antes de hidratar`);
+    }
+  }
+  return 'portada ES/EN con footer SSR y galería sin footer';
+});
+
 await run('portada: landmark, salto por teclado y habilidades sin duplicados', async () => {
   await page.reload({ waitUntil: 'domcontentloaded' });
   if (await page.getByRole('main').count() !== 1) throw new Error('Se esperaba un landmark main');
