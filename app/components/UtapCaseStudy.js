@@ -227,7 +227,9 @@ export default function UtapCaseStudy() {
                       key={decision}
                       className="flex items-start gap-2.5 text-sm leading-relaxed text-[var(--ink-soft)]"
                     >
-                      <span className="mt-0.5 h-1 w-1 shrink-0 rounded-full bg-[var(--accent)]" aria-hidden="true" />
+                      <span className="flex h-[1.625em] w-1 shrink-0 items-center justify-center" aria-hidden="true">
+                        <span className="h-1 w-1 rounded-full bg-[var(--accent)]" />
+                      </span>
                       {decision}
                     </li>
                   ))}
