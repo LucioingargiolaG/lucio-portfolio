@@ -23,6 +23,7 @@ import {
 } from 'react-icons/si';
 import { useLanguage } from '@/app/context/LanguageContext';
 import { useMode } from '@/app/context/ModeContext';
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF, LINKS } from '@/lib/site';
 import { LanguageSwitch } from './Navbar';
 import Logo from './Logo';
 
@@ -95,7 +96,7 @@ export default function Footer() {
               <div className="flex gap-3">
                 {/* Redes sociales */}
                 <a
-                  href="https://github.com/LucioingargiolaG"
+                  href={LINKS.github}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
@@ -104,7 +105,7 @@ export default function Footer() {
                   <SiGithub size={18} />
                 </a>
                 <a
-                  href="https://www.linkedin.com/in/lucioingargiola/"
+                  href={LINKS.linkedin}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
@@ -113,7 +114,7 @@ export default function Footer() {
                   <LinkedinIcon />
                 </a>
                 <a
-                  href="https://instagram.com/lucio.ingargiola"
+                  href={LINKS.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -122,7 +123,7 @@ export default function Footer() {
                   <SiInstagram size={18} />
                 </a>
                 <a
-                  href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}`}
+                  href={CONTACT_EMAIL_HREF}
                   aria-label="Email"
                   className={socialClass}
                 >
@@ -138,11 +139,11 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li>
                 <a
-                  href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}`}
+                  href={CONTACT_EMAIL_HREF}
                   className="link-pretty flex items-center gap-3 text-[var(--ink-soft)] transition-colors duration-300 hover:text-[var(--accent)]"
                 >
                   <Mail size={16} className="shrink-0 text-[var(--accent)]" />
-                  {process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tu@email.com'}
+                  <span className="break-all">{CONTACT_EMAIL}</span>
                 </a>
               </li>
               {/* Ubicación */}

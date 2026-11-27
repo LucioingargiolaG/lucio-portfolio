@@ -5,50 +5,83 @@
  *  - `translations.es` → textos en español
  *  - `translations.en` → textos en inglés
  *
- * Cada sección del sitio (nav, hero, howIWork, projects, marketing,
- * contact, footer...) tiene su bloque de textos. Los componentes leen
- * `t` (traducción del idioma activo) y los switchs cambian `lang`.
+ * Cada sección del sitio (nav, hero, servicios, proyectos, UTAP, contacto,
+ * footer...) tiene su bloque de textos. Los componentes leen `t` (traducción
+ * del idioma activo) y los switchs cambian `lang`.
  *
  * La preferencia se guarda en localStorage y en el atributo lang de <html>.
+ * Si no hay preferencia guardada, se detecta el idioma del navegador.
  */
 "use client";
 
 import {
   createContext,
   useContext,
-  useState,
-  useEffect,
   useCallback,
+  useSyncExternalStore,
 } from "react";
+import { FEATURED_DESCRIPTIONS } from "@/lib/projectCopy";
+import { softRefresh } from "@/lib/uiTransitions";
+
+// Store mínimo del idioma: la fuente de verdad es <html lang>, que el boot
+// script de layout.js ya resolvió (?lang → localStorage → navegador) antes
+// del primer paint. useSyncExternalStore renderiza "es" en servidor (igual
+// que el HTML) y toma el idioma real apenas hidrata, sin warning ni flash.
+const LANG_EVENT = "lucio:langchange";
+
+function subscribeLang(onChange) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(LANG_EVENT, onChange);
+  return () => window.removeEventListener(LANG_EVENT, onChange);
+}
+
+function getLangSnapshot() {
+  return typeof document !== "undefined" &&
+    document.documentElement.lang === "en"
+    ? "en"
+    : "es";
+}
+
+function getLangServerSnapshot() {
+  return "es";
+}
+
+function writeLang(next) {
+  if (next !== "es" && next !== "en") return;
+  if (typeof window === "undefined") return;
+  document.documentElement.lang = next;
+  try {
+    localStorage.setItem("lang", next);
+  } catch {
+    // localStorage puede estar bloqueado: el atributo lang sigue funcionando.
+  }
+  window.dispatchEvent(new Event(LANG_EVENT));
+  softRefresh();
+}
 
 // Objeto con todas las traducciones (es y en).
 const translations = {
   es: {
     nav: {
-      home: "main",
+      home: "inicio",
+      services: "Servicios",
+      projects: "Proyectos",
       howIWork: "Experiencia",
       ai: "IA",
-      projects: "proyectos",
       contact: "Contacto",
       back: "Volver",
     },
     hero: {
       greeting: "Hola, soy",
       title: "Lucio Ingargiola",
-      role: "Front End Developer",
-      available: "Disponible para proyectos",
+      professionalTag: "DESARROLLO WEB · MARKETING DIGITAL",
+      mainTitle: "Transformo ideas en experiencias digitales.",
+      available: "Disponible para proyectos de pequeños negocios",
       description:
-        "Estudiante de la Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas en Tandil, Buenos Aires. Front-End Developer & Estratega de Marketing Digital.",
-      descStrong1: "Desarrollo de Aplicaciones Informáticas",
-      descStrong2: "Front End Developer",
-      highlights: [
-        "HTML, CSS, JavaScript, React y Next.js",
-        "Diseño responsive y rendimiento",
-        "Colaboración con equipos multidisciplinarios",
-      ],
-      viewProjects: "Ver Proyectos",
+        "Combino tecnología, diseño y estrategia para construir soluciones digitales que aporten valor a tu negocio.",
+      viewProjects: "Ver mi trabajo",
       cv: "CV",
-      contact: "Contactar",
+      contact: "Hablemos",
       scroll: "Scroll",
       linkedin: "LinkedIn",
       github: "GitHub",
@@ -57,70 +90,105 @@ const translations = {
       es: "CV - Español",
       en: "CV - Inglés",
     },
-    howIWork: {
-      badge: "Cómo Trabajo",
-      title: "Mi enfoque de",
-      titleAccent: "desarrollo",
-      pillars: [
+    services: {
+      badge: "Servicios",
+      title: "Lo que puedo",
+      titleAccent: "hacer por tu negocio",
+      description:
+        "Desarrollo sitios web y piezas digitales para pequeños negocios que necesitan una presencia online clara, rápida y fácil de mantener.",
+      items: [
         {
-          icon: "bolt",
-          title: "Código Limpio",
-          text: "Escribo código mantenible y escalable siguiendo las mejores prácticas y principios SOLID.",
+          icon: "layout",
+          title: "Sitios web para negocios",
+          text: "Sitios modernos y responsive que explican qué ofrecés y facilitan el contacto con tus clientes.",
         },
         {
           icon: "rocket",
-          title: "Rendimiento",
-          text: "Optimizo aplicaciones para lograr cargas rápidas y experiencias de usuario fluidas.",
+          title: "Landing pages",
+          text: "Páginas enfocadas en una campaña, un servicio o un lanzamiento, con llamadas a la acción claras.",
         },
         {
-          icon: "palette",
-          title: "UX / UI",
-          text: "Diseño interfaces intuitivas y accesibles que priorizan la experiencia del usuario.",
+          icon: "qr",
+          title: "Menús digitales con QR",
+          text: "Cartas accesibles desde el celular, con panel privado para actualizar productos, precios y horarios.",
         },
         {
-          icon: "book",
-          title: "Aprendizaje Continuo",
-          text: "Siempre actualizándome con las últimas tecnologías y tendencias del desarrollo web.",
+          icon: "chart",
+          title: "Rendimiento, SEO y contenido",
+          text: "Optimización de velocidad, metadatos y textos para que más personas encuentren tu negocio.",
         },
       ],
-      stats: [
-        { value: "1+", label: "Año de experiencia" },
-        { value: "10+", label: "Proyectos realizados" },
-        { value: "5+", label: "Tecnologías dominadas" },
-        { value: "100%", label: "Dedicación y pasión" },
-      ],
+      cta: "¿No sabés por dónde empezar?",
+      ctaText: "Escribime y te ayudo a definir el alcance de tu proyecto.",
+      ctaButton: "Hablemos de tu proyecto",
     },
-    ai: {
-      badge: "Inteligencia Artificial",
-      title: "También trabajo con",
-      titleAccent: "inteligencia artificial",
-      desc1:
-        "Además del desarrollo web, integro herramientas de inteligencia artificial en mis flujos de trabajo: desde asistentes de código hasta automatización de tareas y generación de contenido.",
-      desc2:
-        "Diseño prompts efectivos, entreno agentes y aprovecho APIs de IA para crear soluciones más rápidas, inteligentes y productivas.",
-      skills: [
-        "ChatGPT",
-        "Claude",
-        "GitHub Copilot",
-        "Cursor",
-        "Prompt Engineering",
-        "Automatización",
-        "OpenAI API",
-        "RAG",
+    utap: {
+      badge: "Caso de estudio",
+      title: "UTAP",
+      titleAccent: "Menú digital",
+      subtitle:
+        "Un menú digital con QR y panel de administración, en uso real.",
+      problemTitle: "La necesidad",
+      problem:
+        "La hamburguesería necesitaba una carta accesible desde el celular, sin instalar una app ni pedir login a los clientes. También necesitaba poder actualizar productos, precios y horarios sin depender de un desarrollador.",
+      solutionTitle: "La solución",
+      solution:
+        "Desarrollé una aplicación web con Next.js que muestra el menú público al escanear un QR y suma un panel privado para que el dueño gestione el contenido. El menú se revalida automáticamente para reflejar los cambios.",
+      featuresTitle: "Funcionalidades principales",
+      features: [
+        "Menú público accesible por QR, sin login",
+        "Navegación por categorías y filtros horizontales",
+        "Productos con nombre, descripción, precio e imagen opcional",
+        "Botón de pedido configurable hacia un sistema externo",
+        "Panel privado para crear, editar y eliminar productos",
+        "Gestión de categorías y su orden de aparición",
+        "Activación/desactivación de productos y configuración de horarios",
+        "Contraseña hasheada y sesión en cookie HttpOnly",
       ],
+      technologiesTitle: "Tecnologías verificadas",
+      decisionsTitle: "Decisiones de diseño y UX",
+      decisions: [
+        "Mobile-first: el menú se abre desde un QR y se usa principalmente en el celular.",
+        "Cero fricción para el cliente: sin registro ni app; acceso directo a la carta.",
+        "Separación clara entre menú público y panel privado.",
+        "Actualización sin deploy: el dueño cambia el contenido y se refleja por revalidación.",
+      ],
+      currentTitle: "Uso actual",
+      current:
+        "Está funcionando en la hamburguesería UTAP. El menú se usa desde el local mediante un código QR y el panel permite mantener la carta al día.",
+      note:
+        "No incluyo métricas de ventas ni testimonios porque no cuento con datos verificables.",
+      viewLive: "Ver menú en vivo",
+      viewCode: "Ver código",
+      viewCase: "Ver caso de estudio",
+      used: "En uso real",
+      developmentTitle: "Mi desarrollo",
+      development:
+        "Desarrollé el producto completo: estructura del menú, funcionalidad con QR y panel de administración, hasta el deploy que tiene hoy.",
+      exploreDetail: "Explorá el detalle del caso",
+      contactCTA: "Hablemos",
     },
     projects: {
       badge: "Proyectos",
-      title: "Mis",
-      titleAccent: "proyectos",
+      title: "Proyectos",
+      titleAccent: "destacados",
       description:
-        "Aquí algunos de los trabajos que he realizado. Cada proyecto representa un desafío diferente y una oportunidad de aprendizaje.",
-      carouselTitle: "Portafolio Técnico",
+        "Una selección de proyectos en los que combino desarrollo, diseño y estrategia para resolver necesidades reales y crear experiencias digitales funcionales.",
+      carouselTitle: "Proyectos destacados",
       carouselDesc:
-        "He desarrollado plataformas web y proyectos front-end orientados a rendimiento, estética y escalabilidad.",
-      talkSubtitle: "Hablemos",
-      talkText: "Construyamos algo escalable.",
-      namePlaceholder: "Tu Nombre",
+        "Una selección de proyectos en los que combino desarrollo, diseño y estrategia para resolver necesidades reales y crear experiencias digitales funcionales.",
+      talkSubtitle: "¿Tenés un proyecto en mente?",
+      talkText: "Contame qué necesita tu negocio y vemos cómo resolverlo.",
+      namePlaceholder: "Tu nombre",
+      viewAll: "Ver todos los proyectos",
+      viewCaseStudy: "Conocer el caso UTAP",
+      // Copia aprobada de los dos proyectos destacados (v1.0). Se aplica
+      // desde lib/projectCopy.js para no modificar datos de producción.
+      featured: {
+        utapDescription: FEATURED_DESCRIPTIONS.es.utap,
+        portfolioDescription: FEATURED_DESCRIPTIONS.es.portfolio,
+        utapInUse: "En uso real",
+      },
       filters: {
         all: "Todos",
         web: "Web Apps",
@@ -130,13 +198,68 @@ const translations = {
       viewArchitecture: "▶ Ver arquitectura",
       hideArchitecture: "▼ Ocultar arquitectura",
       architectureTitle: "Arquitectura",
-      github: "Ver proyecto →",
+      github: "Ver repositorio →",
+      demo: "Ver proyecto →",
       empty: "Aún no hay proyectos publicados. ¡Muy pronto habrá novedades!",
       category: {
         web: "Web App",
         landing: "Landing Page",
         marketing: "Marketing",
       },
+    },
+    projectDetail: {
+      back: "Volver a proyectos",
+      architecture: "Arquitectura",
+      technologies: "Tecnologías",
+      viewLive: "Ver proyecto en internet",
+      viewRepo: "Ver repositorio en GitHub",
+      notFound: "Proyecto no encontrado",
+    },
+    howIWork: {
+      badge: "Cómo Trabajo",
+      title: "Mi enfoque de",
+      titleAccent: "desarrollo",
+      pillars: [
+        {
+          icon: "bolt",
+          title: "Código Limpio",
+          text: "Escribo código mantenible y legible siguiendo buenas prácticas, para que el proyecto pueda crecer sin volverse frágil.",
+        },
+        {
+          icon: "rocket",
+          title: "Rendimiento",
+          text: "Cuido la velocidad de carga y la experiencia en celulares, porque una web lenta pierde clientes.",
+        },
+        {
+          icon: "palette",
+          title: "UX / UI",
+          text: "Diseño interfaces claras y accesibles que priorizan lo que el usuario necesita hacer.",
+        },
+        {
+          icon: "book",
+          title: "Aprendizaje Continuo",
+          text: "Sigo formándome y aplicando lo que aprendo en proyectos concretos, no solo en ejercicios.",
+        },
+      ],
+    },
+    ai: {
+      badge: "Inteligencia Artificial",
+      title: "También trabajo con",
+      titleAccent: "inteligencia artificial",
+      desc1:
+        "Aplico inteligencia artificial generativa de forma práctica en mis proyectos: asistencia de código con IA, automatización de tareas y apoyo para crear contenido para web y redes sociales.",
+      desc2:
+        "Diseño prompts, integro APIs de IA en flujos concretos y reviso siempre los resultados con criterio propio: la herramienta acelera, la validación humana decide. En 2026 curso la Capacitación en Inteligencia Artificial en el CFL N.º 401 de Azul.",
+      skills: [
+        "ChatGPT",
+        "Claude",
+        "GitHub Copilot",
+        "Cursor",
+        "Prompt Engineering",
+        "Asistentes de código",
+        "Automatización con IA",
+        "APIs de IA",
+      ],
     },
     marketing: {
       badge: "Marketing Digital",
@@ -146,7 +269,7 @@ const translations = {
       title: "Marketing",
       titleAccent: "digital",
       description:
-        "Complemento mi perfil técnico con marketing digital y creación de contenido audiovisual. Desarrollo estrategias y edito piezas visuales enfocadas en el crecimiento integral de los proyectos.",
+        "Complemento mi perfil técnico con marketing digital y creación de contenido audiovisual. Desarrollo estrategias y edito piezas visuales enfocadas en el crecimiento de los proyectos.",
       services: [
         {
           icon: "rocket",
@@ -176,7 +299,7 @@ const translations = {
         {
           icon: "chart",
           title: "Analítica & Reportes",
-          text: "Métricas claras y reportes accionables para medir resultados reales.",
+          text: "Métricas claras y reportes accionables para medir resultados.",
         },
       ],
       cta: "¿Tenés un proyecto o una campaña en mente?",
@@ -184,12 +307,24 @@ const translations = {
       viewPortfolio: "Ver Portafolio Digital",
     },
     portfolioDigital: {
-      badge: "Próximamente",
-      title: "Portafolio",
-      titleAccent: "digital",
+      badge: "Portafolio Digital",
+      title: "Edición",
+      titleAccent: "audiovisual",
       subtitle:
-        "Estoy preparando una selección de mis trabajos audiovisuales y de edición. Muy pronto vas a poder verlos acá.",
+        "Historias que conectan. Contenido que comunica.",
+      description:
+        "Una selección de trabajos de edición de video y creación de contenido para marcas, proyectos culturales y redes sociales.",
       back: "Volver al inicio",
+      categories: "Categorías",
+      filterAll: "Todos",
+      play: "Reproducir",
+      playerTitle: "Reproductor de video",
+      close: "Cerrar",
+      openDrive: "Ver en Google Drive",
+      folderLabel: "Carpeta completa",
+      folderAria: "carpeta completa en Google Drive",
+      cta: "Hablemos de mis trabajos",
+      noVideos: "Sin videos disponibles en esta categoría.",
     },
     recruiter: {
       badge: "Para Reclutadores",
@@ -199,13 +334,17 @@ const translations = {
         "Un vistazo rápido a mi stack técnico. Todo el detalle de tecnologías y herramientas para evaluar si mi perfil encaja con la posición.",
       profile: {
         name: "Lucio Ingargiola",
-        role: "Front End Developer",
-        note: "Abierto a nuevas oportunidades laborales.",
+        role: "Desarrollador Web · Front End",
+        note: "Abierto a oportunidades laborales y proyectos freelance.",
         items: [
-          { label: "Experiencia", value: "1+ año desarrollando" },
+          {
+            label: "Experiencia",
+            value: "Formación + proyectos reales",
+          },
           {
             label: "Formación",
-            value: "Técnico en Desarrollo de Aplicaciones Informáticas",
+            value:
+              "Estudiante de la Tecnicatura en Desarrollo de Aplicaciones Informáticas",
           },
           { label: "Stack principal", value: "React · Next.js · JavaScript" },
           { label: "También", value: "Angular · Node.js · Marketing Digital" },
@@ -232,6 +371,7 @@ const translations = {
           skills: [
             "MongoDB",
             "Mongoose",
+            "Prisma",
             "Express",
             "Firebase",
             "REST APIs",
@@ -280,25 +420,32 @@ const translations = {
     contact: {
       badge: "Contacto",
       title: "Hablemos",
-      titleAccent: "juntos",
-      description: "¿Tenés un proyecto en mente? No dudes en consultarme.",
+      titleAccent: "de tu proyecto",
+      description:
+        "Contame qué necesitás. Puedo ayudarte con un sitio nuevo, una landing page o un menú digital para tu negocio.",
       email: "Email",
+      direct: "También podés escribirme directo a",
       name: "Nombre",
       namePlaceholder: "Tu nombre",
       phone: "Teléfono",
       phonePlaceholder: "Tu teléfono (opcional)",
       message: "Mensaje",
-      messagePlaceholder: "Escribí tu mensaje...",
+      messagePlaceholder:
+        "Contame sobre tu negocio y qué te gustaría lograr con el sitio...",
       send: "Enviar Mensaje",
       sending: "Enviando...",
       success: "¡Mensaje enviado correctamente!",
       successTitle: "¡Mensaje enviado!",
       successDesc: "Gracias por escribirme. Te respondo lo antes posible.",
       sendAnother: "Enviar otro mensaje",
-      error: "Hubo un error. Intentá de nuevo.",
+      error:
+        "No se pudo enviar el mensaje. Revisá tu conexión o escribime directo por email.",
+      configError:
+        "El formulario no está configurado en este entorno. Escribime directo a",
       privacyError:
         "Necesitás aceptar el consentimiento para poder enviar el mensaje.",
-      privacy: "Acepto que mis datos sean usados para responder esta consulta.",
+      privacy:
+        "Acepto que mis datos sean usados para responder esta consulta.",
     },
     recruitment: {
       badge: "Vista para Reclutamiento e IA",
@@ -313,41 +460,36 @@ const translations = {
       downloadCv: "Descargar mi CV técnico",
       navigation: "Navegación",
       location: "Azul, Buenos Aires, Argentina",
-      available: "Disponible para proyectos y colaboraciones.",
+      available: "Disponible para proyectos de pequeños negocios.",
       backToTop: "Volver arriba",
       rights: "Todos los derechos reservados.",
       built: "Desarrollado con",
       tagline:
-        "Experiencias web rápidas, accesibles y con una estética cuidada.",
+        "Sitios rápidos, accesibles y con una estética cuidada para pequeños negocios.",
     },
   },
   // ---------- Traducciones en inglés ----------
   en: {
     nav: {
       home: "main",
+      services: "Services",
+      projects: "Work",
       howIWork: "Experience",
       ai: "AI",
-      projects: "projects",
       contact: "Contact",
       back: "Back",
     },
     hero: {
       greeting: "Hi, I'm",
       title: "Lucio Ingargiola",
-      role: "Front End Developer",
-      available: "Available for projects",
+      professionalTag: "WEB DEVELOPMENT · DIGITAL MARKETING",
+      mainTitle: "I turn ideas into digital experiences.",
+      available: "Available for small business projects",
       description:
-        "Student of the University Technician in IT Application Development in Tandil, Buenos Aires. Front-End Developer & Digital Marketing Strategist.",
-      descStrong1: "Information Technology",
-      descStrong2: "Front End Developer",
-      highlights: [
-        "HTML, CSS, JavaScript, React and Next.js",
-        "Responsive design and performance",
-        "Collaboration with multidisciplinary teams",
-      ],
-      viewProjects: "View Projects",
+        "I combine technology, design and strategy to build digital solutions that add value to your business.",
+      viewProjects: "View My Work",
       cv: "CV",
-      contact: "Contact",
+      contact: "Let's Talk",
       scroll: "Scroll",
       linkedin: "LinkedIn",
       github: "GitHub",
@@ -356,70 +498,104 @@ const translations = {
       es: "CV - Spanish",
       en: "CV - English",
     },
-    howIWork: {
-      badge: "How I Work",
-      title: "My approach to",
-      titleAccent: "development",
-      pillars: [
+    services: {
+      badge: "Services",
+      title: "What I can",
+      titleAccent: "do for your business",
+      description:
+        "I build websites and digital assets for small businesses that need a clear, fast, and easy-to-maintain online presence.",
+      items: [
         {
-          icon: "bolt",
-          title: "Clean Code",
-          text: "I write maintainable and scalable code following best practices and SOLID principles.",
+          icon: "layout",
+          title: "Business websites",
+          text: "Modern, responsive websites that explain what you offer and make it easy for customers to contact you.",
         },
         {
           icon: "rocket",
-          title: "Performance",
-          text: "I optimize applications to achieve fast loads and smooth user experiences.",
+          title: "Landing pages",
+          text: "Focused pages for a campaign, service, or launch, with clear calls to action.",
         },
         {
-          icon: "palette",
-          title: "UX / UI",
-          text: "I design intuitive and accessible interfaces that prioritize user experience.",
+          icon: "qr",
+          title: "QR digital menus",
+          text: "Mobile-friendly menus with a private dashboard to update products, prices, and opening hours.",
         },
         {
-          icon: "book",
-          title: "Continuous Learning",
-          text: "Always updating myself with the latest technologies and web development trends.",
+          icon: "chart",
+          title: "Performance, SEO & content",
+          text: "Speed, metadata, and copy improvements so more people can find your business.",
         },
       ],
-      stats: [
-        { value: "1+", label: "Year of experience" },
-        { value: "10+", label: "Projects completed" },
-        { value: "5+", label: "Technologies mastered" },
-        { value: "100%", label: "Dedication and passion" },
-      ],
+      cta: "Not sure where to start?",
+      ctaText: "Tell me what you need and I'll help you define the scope.",
+      ctaButton: "Let's talk about your project",
     },
-    ai: {
-      badge: "Artificial Intelligence",
-      title: "I also work with",
-      titleAccent: "artificial intelligence",
-      desc1:
-        "Beyond web development, I integrate artificial intelligence tools into my workflows: from coding assistants to task automation and content generation.",
-      desc2:
-        "I design effective prompts, train agents and leverage AI APIs to build faster, smarter and more productive solutions.",
-      skills: [
-        "ChatGPT",
-        "Claude",
-        "GitHub Copilot",
-        "Cursor",
-        "Prompt Engineering",
-        "Automation",
-        "OpenAI API",
-        "RAG",
+    utap: {
+      badge: "Case study",
+      title: "UTAP",
+      titleAccent: "Digital Menu",
+      subtitle:
+        "A QR digital menu with an admin dashboard, running in a real business.",
+      problemTitle: "The need",
+      problem:
+        "The burger restaurant needed a menu customers could open on their phones without installing an app or logging in. The owner also needed to update products, prices, and opening hours without depending on a developer.",
+      solutionTitle: "The solution",
+      solution:
+        "I built a Next.js web application that shows the public menu after scanning a QR code and includes a private dashboard for the owner to manage content. The menu revalidates automatically so changes appear without a redeploy.",
+      featuresTitle: "Main features",
+      features: [
+        "Public menu accessible by QR, no login required",
+        "Category navigation with horizontal filters",
+        "Products with name, description, price, and optional image",
+        "Configurable order button linking to an external system",
+        "Private dashboard to create, edit, and delete products",
+        "Category management and display order",
+        "Product activation/deactivation and opening-hours settings",
+        "Hashed password and HttpOnly cookie session",
       ],
+      technologiesTitle: "Verified technologies",
+      decisionsTitle: "Design and UX decisions",
+      decisions: [
+        "Mobile-first: the menu is opened from a QR code and used mainly on phones.",
+        "Zero friction for customers: no sign-up or app, just direct access to the menu.",
+        "A clear separation between the public menu and the private dashboard.",
+        "Updates without a deploy: the owner edits content and revalidation reflects it.",
+      ],
+      currentTitle: "Current use",
+      current:
+        "It is running at the UTAP burger restaurant. Customers use the menu in the restaurant through a QR code, and the dashboard keeps the menu up to date.",
+      note:
+        "I don't include sales metrics or testimonials because I don't have verifiable data.",
+      viewLive: "View live menu",
+      viewCode: "View code",
+      viewCase: "View case study",
+      used: "In real use",
+      developmentTitle: "My development",
+      development:
+        "I developed the product in full: menu structure, QR functionality and the admin dashboard, including the deploy that runs today.",
+      exploreDetail: "Explore the case in detail",
+      contactCTA: "Let's talk",
     },
     projects: {
-      badge: "Projects",
-      title: "My",
+      badge: "Work",
+      title: "Featured",
       titleAccent: "projects",
       description:
-        "Here are some of the works I have done. Each project represents a different challenge and a learning opportunity.",
-      carouselTitle: "Technical Portfolio",
+        "A selection of projects in which I combine development, design and strategy to solve real needs and create functional digital experiences.",
+      carouselTitle: "Featured projects",
       carouselDesc:
-        "I have developed web platforms and front-end projects focused on performance, aesthetics and scalability.",
-      talkSubtitle: "Let's talk",
-      talkText: "Let's build something scalable.",
-      namePlaceholder: "Your Name",
+        "A selection of projects in which I combine development, design and strategy to solve real needs and create functional digital experiences.",
+      talkSubtitle: "Have a project in mind?",
+      talkText: "Tell me what your business needs and let's find a way to solve it.",
+      namePlaceholder: "Your name",
+      viewAll: "View all projects",
+      viewCaseStudy: "See the UTAP case study",
+      // Approved copy for the two featured projects (v1.0).
+      featured: {
+        utapDescription: FEATURED_DESCRIPTIONS.en.utap,
+        portfolioDescription: FEATURED_DESCRIPTIONS.en.portfolio,
+        utapInUse: "In real use",
+      },
       filters: {
         all: "All",
         web: "Web Apps",
@@ -429,13 +605,68 @@ const translations = {
       viewArchitecture: "▶ View architecture",
       hideArchitecture: "▼ Hide architecture",
       architectureTitle: "Architecture",
-      github: "GitHub →",
+      github: "View repository →",
+      demo: "View project →",
       empty: "No published projects yet. More coming soon!",
       category: {
         web: "Web App",
         landing: "Landing Page",
         marketing: "Marketing",
       },
+    },
+    projectDetail: {
+      back: "Back to projects",
+      architecture: "Architecture",
+      technologies: "Technologies",
+      viewLive: "View live project",
+      viewRepo: "View GitHub repository",
+      notFound: "Project not found",
+    },
+    howIWork: {
+      badge: "How I Work",
+      title: "My approach to",
+      titleAccent: "development",
+      pillars: [
+        {
+          icon: "bolt",
+          title: "Clean Code",
+          text: "I write maintainable, readable code following good practices so the project can grow without becoming fragile.",
+        },
+        {
+          icon: "rocket",
+          title: "Performance",
+          text: "I care about load speed and the mobile experience, because a slow site loses customers.",
+        },
+        {
+          icon: "palette",
+          title: "UX / UI",
+          text: "I design clear, accessible interfaces that prioritize what the user needs to do.",
+        },
+        {
+          icon: "book",
+          title: "Continuous Learning",
+          text: "I keep learning and apply what I learn to real projects, not just exercises.",
+        },
+      ],
+    },
+    ai: {
+      badge: "Artificial Intelligence",
+      title: "I also work with",
+      titleAccent: "artificial intelligence",
+      desc1:
+        "I put generative AI to practical use in my projects: AI-assisted coding, task automation and support for creating web and social media content.",
+      desc2:
+        "I write prompts, integrate AI APIs into real workflows and always review the results with my own judgment: the tool speeds things up, human validation decides. In 2026 I am taking the Artificial Intelligence course at CFL N.º 401, Azul.",
+      skills: [
+        "ChatGPT",
+        "Claude",
+        "GitHub Copilot",
+        "Cursor",
+        "Prompt Engineering",
+        "AI coding assistants",
+        "AI automation",
+        "AI APIs",
+      ],
     },
     marketing: {
       badge: "Digital Marketing",
@@ -445,7 +676,7 @@ const translations = {
       title: "Marketing",
       titleAccent: "digital",
       description:
-        "I complement my technical profile with digital marketing and audiovisual content creation. I develop strategies and edit visual pieces focused on the integral growth of projects.",
+        "I complement my technical profile with digital marketing and audiovisual content creation. I develop strategies and edit visual pieces focused on project growth.",
       services: [
         {
           icon: "rocket",
@@ -475,7 +706,7 @@ const translations = {
         {
           icon: "chart",
           title: "Analytics & Reports",
-          text: "Clear metrics and actionable reports to measure real results.",
+          text: "Clear metrics and actionable reports to measure results.",
         },
       ],
       cta: "Got a project or campaign in mind?",
@@ -483,12 +714,24 @@ const translations = {
       viewPortfolio: "View Digital Portfolio",
     },
     portfolioDigital: {
-      badge: "Coming soon",
-      title: "Digital",
-      titleAccent: "portfolio",
+      badge: "Digital Portfolio",
+      title: "Audiovisual",
+      titleAccent: "Editing",
       subtitle:
-        "I'm preparing a selection of my audiovisual and editing work. You'll be able to see it here very soon.",
+        "Stories that connect. Content that communicates.",
+      description:
+        "A selection of video editing and content creation for brands, cultural projects and social networks.",
       back: "Back to home",
+      categories: "Categories",
+      filterAll: "All",
+      play: "Play",
+      playerTitle: "Video player",
+      close: "Close",
+      openDrive: "View on Google Drive",
+      folderLabel: "Full folder",
+      folderAria: "full folder on Google Drive",
+      cta: "Let's talk about my work",
+      noVideos: "No videos available in this category.",
     },
     recruiter: {
       badge: "For Recruiters",
@@ -498,13 +741,16 @@ const translations = {
         "A quick look at my technical stack. All the technology and tooling details to evaluate whether I fit the role.",
       profile: {
         name: "Lucio Ingargiola",
-        role: "Front End Developer",
-        note: "Open to new job opportunities.",
+        role: "Web Developer · Front End",
+        note: "Open to job opportunities and freelance projects.",
         items: [
-          { label: "Experience", value: "1+ year building" },
+          {
+            label: "Experience",
+            value: "Education + real projects",
+          },
           {
             label: "Education",
-            value: "IT Application Development Technician",
+            value: "IT Application Development student",
           },
           { label: "Main stack", value: "React · Next.js · JavaScript" },
           { label: "Also", value: "Angular · Node.js · Digital Marketing" },
@@ -531,6 +777,7 @@ const translations = {
           skills: [
             "MongoDB",
             "Mongoose",
+            "Prisma",
             "Express",
             "Firebase",
             "REST APIs",
@@ -578,16 +825,19 @@ const translations = {
     },
     contact: {
       badge: "Contact",
-      title: "Let's",
-      titleAccent: "talk",
-      description: "Have a project in mind? Don't hesitate to ask me.",
+      title: "Let's talk",
+      titleAccent: "about your project",
+      description:
+        "Tell me what you need. I can help with a new website, a landing page, or a digital menu for your business.",
       email: "Email",
+      direct: "You can also email me directly at",
       name: "Name",
       namePlaceholder: "Your name",
       phone: "Phone",
       phonePlaceholder: "Your phone (optional)",
       message: "Message",
-      messagePlaceholder: "Write your message...",
+      messagePlaceholder:
+        "Tell me about your business and what you'd like the website to achieve...",
       send: "Send Message",
       sending: "Sending...",
       success: "Message sent successfully!",
@@ -595,7 +845,10 @@ const translations = {
       successDesc:
         "Thanks for reaching out. I'll get back to you as soon as possible.",
       sendAnother: "Send another message",
-      error: "There was an error. Please try again.",
+      error:
+        "The message could not be sent. Check your connection or email me directly.",
+      configError:
+        "The form is not configured in this environment. Email me directly at",
       privacyError:
         "You must accept the consent to be able to send the message.",
       privacy:
@@ -614,11 +867,12 @@ const translations = {
       downloadCv: "Download my technical CV",
       navigation: "Navigation",
       location: "Azul, Buenos Aires, Argentina",
-      available: "Open to projects and collaborations.",
+      available: "Available for small business projects.",
       backToTop: "Back to top",
       rights: "All rights reserved.",
       built: "Built with",
-      tagline: "Fast, accessible web experiences with a polished aesthetic.",
+      tagline:
+        "Fast, accessible websites with a polished look for small businesses.",
     },
   },
 };
@@ -634,39 +888,20 @@ const LanguageContext = createContext({
 // Provider: expone el idioma actual, sus traducciones y las funciones
 // para cambiar de idioma.
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState("es");
+  const lang = useSyncExternalStore(
+    subscribeLang,
+    getLangSnapshot,
+    getLangServerSnapshot
+  );
 
-  // Al cargar, recupera el idioma guardado (si lo hay) y lo aplica al <html>.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = localStorage.getItem("lang");
-    if (saved === "es" || saved === "en") {
-      setLangState(saved);
-      document.documentElement.lang = saved;
-    }
-  }, []);
-
-  // Cambia el idioma, lo guarda en localStorage y actualiza el atributo lang.
-  const setLang = useCallback((next) => {
-    if (next !== "es" && next !== "en") return; // solo permite es/en
-    setLangState(next);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("lang", next);
-      document.documentElement.lang = next;
-    }
-  }, []);
+  // Cambia el idioma, lo guarda y notifica a todos los switches.
+  const setLang = useCallback((next) => writeLang(next), []);
 
   // Alterna entre es y en (versión toggle).
-  const toggleLanguage = useCallback(() => {
-    setLangState((prev) => {
-      const next = prev === "es" ? "en" : "es";
-      if (typeof window !== "undefined") {
-        localStorage.setItem("lang", next);
-        document.documentElement.lang = next;
-      }
-      return next;
-    });
-  }, []);
+  const toggleLanguage = useCallback(
+    () => writeLang(lang === "es" ? "en" : "es"),
+    [lang]
+  );
 
   return (
     <LanguageContext.Provider

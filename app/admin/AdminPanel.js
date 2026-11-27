@@ -32,6 +32,7 @@ const emptyForm = {
   description: '',
   technologies: '',
   githubUrl: '',
+  demoUrl: '',
   category: 'web',
   architecture: '',
   image: '',
@@ -375,6 +376,18 @@ export default function AdminPanel() {
                     onChange={handleChange}
                     required
                     placeholder="https://github.com/tu-usuario/proyecto o tu portfolio de edición"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className={labelClass}>Proyecto en vivo (opcional)</label>
+                  <input
+                    type="url"
+                    name="demoUrl"
+                    value={form.demoUrl}
+                    onChange={handleChange}
+                    placeholder="https://mi-proyecto.vercel.app"
                     className={inputClass}
                   />
                 </div>

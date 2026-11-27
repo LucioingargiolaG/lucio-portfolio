@@ -17,7 +17,7 @@ import { SkillChip } from './skillIcons';
 // Tarjeta con el título del grupo y sus chips de skills.
 function GroupCard({ group }) {
   return (
-    <div className="w-72 shrink-0 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-6 shadow-lg transition-colors hover:border-accent-40">
+    <div className="w-56 shrink-0 rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-5 shadow-lg transition-colors hover:border-accent-40">
       <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-[var(--accent)]">
         {group.title}
       </h3>
@@ -41,7 +41,7 @@ export default function SkillsMarquee() {
     <div className="marquee-mask relative overflow-hidden py-2">
       {/* .animate-marquee = keyframes marquee de globals.css (45s loop).
           hover:[animation-play-state:paused] pausa al pasar el mouse. */}
-      <div className="animate-marquee flex w-max items-stretch gap-5 py-2 pr-5 hover:[animation-play-state:paused]">
+      <div className="animate-marquee flex w-max items-stretch gap-4 py-2 pr-5 hover:[animation-play-state:paused]">
         {track.map((group, i) => (
           <GroupCard key={`${group.title}-${i}`} group={group} />
         ))}

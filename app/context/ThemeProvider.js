@@ -2,19 +2,29 @@
  * Contexto de TEMA: 'dark' | 'light'.
  *
  * Gestiona el tema oscuro/claro de toda la app:
- *  - Lee el tema guardado en localStorage (si existe).
- *  - Aplica la clase `dark` o `light` en <html> y <body> (los estilos CSS
- *    de globals.css reaccionan a esas clases).
+ *  - El boot script de layout.js aplica el tema guardado ANTES del primer
+ *    paint (sin flash). Acá solo sincronizamos el estado de React con el DOM.
  *  - Guarda la preferencia en localStorage para recordarla.
  *
- * `mounted` evita un flash/error de hidratación: antes del montaje renderiza
- * un wrapper oscuro y solo después aplica el tema real.
+ * Se mantiene el Provider montado siempre: reemplazarlo por un wrapper
+ * distinto al hidratar remontaba toda la app y reiniciaba el estado de
+ * idioma, filtros y formularios.
  */
 'use client';
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+} from 'react';
 
-// Valor por defecto.
+const useIsoLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+// Valor por defecto (coincide con el HTML del servidor).
 const ThemeContext = createContext({
   theme: 'dark',
   toggleTheme: () => {},
@@ -22,36 +32,41 @@ const ThemeContext = createContext({
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('dark');
-  const [mounted, setMounted] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  // Al montar, leemos el tema guardado del usuario.
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme');
-    if (saved) {
-      setTheme(saved);
+  useIsoLayoutEffect(() => {
+    if (typeof window === 'undefined') return;
+    let saved = null;
+    try {
+      saved = localStorage.getItem('theme');
+    } catch {
+      // Si localStorage no está disponible, mantenemos el tema oscuro.
     }
+    const initial = saved === 'light' ? 'light' : 'dark';
+    setTheme(initial);
+    document.documentElement.classList.remove('dark', 'light');
+    document.documentElement.classList.add(initial);
+    setHydrated(true);
   }, []);
 
-  // Aplicamos el tema al DOM y lo guardamos. Se ejecuta al cambiar `theme`.
+  // Aplica el tema al DOM y lo guarda. Se saltea el primer pase para no
+  // sobrescribir lo que ya puso el boot script ni escribir antes de leer.
   useEffect(() => {
-    if (!mounted) return;
+    if (!hydrated) return;
     document.documentElement.classList.remove('dark', 'light');
     document.documentElement.classList.add(theme);
     document.body.classList.remove('dark', 'light');
     document.body.classList.add(theme);
-    localStorage.setItem('theme', theme);
-  }, [theme, mounted]);
+    try {
+      localStorage.setItem('theme', theme);
+    } catch {
+      // Tema activo en memoria aunque no se pueda persistir.
+    }
+  }, [theme, hydrated]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
-  // Antes de montar devolvemos el children con tema oscuro fijo para evitar
-  // diferencias entre el HTML del servidor y el cliente (hidratación).
-  if (!mounted) {
-    return <div className="dark">{children}</div>;
-  }
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

@@ -42,8 +42,8 @@ GUIA-INTERNA.md
 # .env.local (y similares) contienen secretos: NUNCA deben subirse a git.
 # Creá tu propio .env.local a partir de .env.example (no incluido aún).
 .env*
-# Excepción: si algún día querés versionar un .env de ejemplo:
-# !.env.example
+# Excepción: si querés versionar un .env de ejemplo:
+!.env.example
 
 # vercel
 .vercel
@@ -54,3 +54,6 @@ next-env.d.ts
 
 # --- Fuentes de los CV (los PDF ya están en /public) ---
 *.pptx
+
+# --- Procedimiento temporal de recuperación (no publicar) ---
+scripts/reset-admin-password.mjs

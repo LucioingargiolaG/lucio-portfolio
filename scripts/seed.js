@@ -1,19 +1,43 @@
 /**
  * Script de "seed" (siembra de datos) para MongoDB.
  *
- * BORRA todos los proyectos existentes y los reemplaza con la lista de
- * `seedProjects` de abajo. Sirve para inicializar la base de datos con
- * contenido de ejemplo.
+ * ¡ADVERTENCIA! BORRA todos los proyectos existentes (deleteMany) y los
+ * reemplaza con la lista de `seedProjects` de abajo.
+ *
+ * GUARDES (M9):
+ *  - Se detiene si NODE_ENV === "production".
+ *  - Fuera de producción, pide confirmación interactiva a menos que se
+ *    pase --force.
  *
  * Cómo correrlo:
- *   npm run seed
- *   (requiere que MongoDB esté corriendo y MONGODB_URI en .env.local)
- *
- * ¡OJO! deleteMany({}) borra todo: NO lo corras si no querés perder datos.
+ *   npm run seed            (pide confirmación)
+ *   npm run seed -- --force (ejecuta sin preguntar)
+ *   (requiere MongoDB corriendo y MONGODB_URI en .env.local)
  */
 
+import readline from "node:readline/promises";
 import { connectToDatabase } from "../lib/mongodb.js";
 import Project from "../models/Project.js";
+
+// GUARD M9 (M9): detener en producción, antes de cualquier deleteMany.
+if (process.env.NODE_ENV === "production") {
+  console.error("❌ El seed está deshabilitado en producción (bloqueo antes de deleteMany).");
+  process.exit(1);
+}
+
+const FORCE = process.argv.includes("--force");
+
+if (!FORCE) {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await rl.question(
+    "⚠️  El seed BORRA todos los proyectos existentes (deleteMany). ¿Continuar? (y/N): "
+  );
+  rl.close();
+  if (answer.trim().toLowerCase() !== "y") {
+    console.log("✅ No se hizo nada. Para ejecutar sin preguntar: npm run seed -- --force");
+    process.exit(0);
+  }
+}
 
 // Datos de ejemplo que se insertan (6 proyectos de distintas categorías).
 const seedProjects = [
@@ -23,6 +47,7 @@ const seedProjects = [
       "Plataforma de comercio electrónico con carrito de compras, autenticación JWT y panel de administración completo.",
     technologies: ["React", "Node.js", "MongoDB", "JWT"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "https://e-commerce-app-demo.vercel.app",
     category: "web",
     architecture:
       "Frontend en React con Context API para estado global. Backend en Node.js + Express con arquitectura MVC. Rutas protegidas mediante middleware JWT. Base de datos MongoDB con Mongoose para modelado de usuarios, productos y órdenes.",
@@ -34,6 +59,7 @@ const seedProjects = [
       "Panel de administración con gráficos interactivos, filtros dinámicos y visualización de datos en tiempo real.",
     technologies: ["Next.js", "Chart.js", "Tailwind CSS"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "https://dashboard-analytics-demo.vercel.app",
     category: "web",
     architecture:
       "Next.js con App Router. Renderizado del lado del servidor para datos iniciales. Chart.js para gráficos con actualización vía WebSockets. Diseño responsive con Tailwind CSS y modo oscuro.",
@@ -45,6 +71,7 @@ const seedProjects = [
       "Aplicación CRUD para gestión de tareas con drag & drop, filtros personalizados y autenticación.",
     technologies: ["Angular", "TypeScript", "Firebase"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "https://app-tareas-demo.vercel.app",
     category: "web",
     architecture:
       "Frontend en Angular 18 con módulos lazy-loaded. RxJS para manejo de estado reactivo. Firebase Auth para autenticación y Firestore como base de datos en tiempo real. Drag & drop con Angular CDK.",
@@ -56,6 +83,7 @@ const seedProjects = [
       "Landing page responsiva con animaciones CSS, diseño moderno y optimización SEO para un cliente real.",
     technologies: ["HTML5", "CSS3", "JavaScript"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "https://landing-page-demo.vercel.app",
     category: "landing",
     architecture:
       "HTML semántico con meta tags OG para SEO. CSS Grid y Flexbox para layout responsive. Animaciones con CSS keyframes y IntersectionObserver para lazy loading de secciones. Sin frameworks para máxima performance.",
@@ -67,6 +95,7 @@ const seedProjects = [
       "Sistema web completo para gestión de inventarios con reportes, exportación a PDF y control de usuarios.",
     technologies: ["Java", "Spring Boot", "MySQL", "Thymeleaf"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "",
     category: "web",
     architecture:
       "Backend en Spring Boot con arquitectura en capas (Controller, Service, Repository). Spring Security para autenticación y autorización por roles. MySQL con JPA/Hibernate. Frontend con Thymeleaf y Bootstrap. Exportación con JasperReports.",
@@ -78,6 +107,7 @@ const seedProjects = [
       "Edición de video promocional corporativo con animaciones, transiciones y efectos visuales profesionales.",
     technologies: ["Premiere Pro", "After Effects", "Canva"],
     githubUrl: "https://github.com/LucioingargiolaG",
+    demoUrl: "",
     category: "marketing",
     architecture:
       "Flujo de trabajo: pre-producción con guión gráfico, grabación con cámara profesional, edición en Adobe Premiere Pro con multicámara, gráficos animados en After Effects con expresiones JavaScript, color grading y exportación optimizada para web y redes sociales.",

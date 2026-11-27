@@ -3,16 +3,13 @@
  *
  * Verifica la contraseña de administrador contra el hash guardado en MongoDB
  * (models/Admin.js). Si es la primera vez y no hay credencial, la crea con
- * ADMIN_PASSWORD de .env.local.
+ * ADMIN_PASSWORD del entorno.
  *
  * Seguridad:
- *  - La contraseña se guarda hasheada (scrypt) y se compara en TIEMPO
- *    CONSTANTE (lib/password.js) → sin timing attacks ni texto plano.
- *  - RATE LIMITING por IP (lib/rateLimit.js) → frena fuerza bruta; tras N
- *    intentos fallidos la IP queda bloqueada temporalmente (ni se compara).
- *  - Login exitoso → se firma un token de sesión (HMAC + expiración) y se
- *    guarda en una cookie HttpOnly; Secure; SameSite=Strict. El cliente ya
- *    no guarda ni reenvía la contraseña.
+ *  - Comparación en TIEMPO CONSTANTE (scrypt + salt) → sin timing attacks.
+ *  - Rate limiting PERSISTENTE en MongoDB, atómico y compartido entre
+ *    instancias de Vercel (lib/rateLimit.js). Fail-closed ante errores.
+ *  - Login exitoso → cookie firmada HttpOnly; Secure; SameSite=Strict.
  */
 
 import { NextResponse } from "next/server";
@@ -20,24 +17,48 @@ import { cookies } from "next/headers";
 import { checkAdminPassword, createSession } from "@/lib/auth";
 import { checkAttempt, getClientIp, resetAttempts } from "@/lib/rateLimit";
 
-export async function POST(req) {
-  // Rate limit ANTES de comparar: si la IP está bloqueada, ni intentamos.
-  const ip = getClientIp(req);
-  const limit = checkAttempt(ip);
-  if (!limit.ok) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: `Demasiados intentos. Esperá ${limit.retryAfterSeconds} segundos.`,
-        retryAfterSeconds: limit.retryAfterSeconds,
-      },
-      { status: 429 }
-    );
+const STORE_ERROR = {
+  ok: false,
+  error: "Servicio no disponible. Intentá nuevamente en unos segundos.",
+  retryAfterSeconds: 30,
+};
+
+function rateLimitResponse(limit) {
+  if (limit.reason === "store") {
+    return NextResponse.json(STORE_ERROR, {
+      status: 503,
+      headers: { "Retry-After": String(STORE_ERROR.retryAfterSeconds) },
+    });
   }
+
+  return NextResponse.json(
+    {
+      ok: false,
+      error: `Demasiados intentos. Esperá ${limit.retryAfterSeconds} segundos.`,
+      retryAfterSeconds: limit.retryAfterSeconds,
+    },
+    {
+      status: 429,
+      headers: { "Retry-After": String(limit.retryAfterSeconds) },
+    }
+  );
+}
+
+export async function POST(req) {
+  // Rate limit ANTES de comparar: si está bloqueado, ni se lee la contraseña.
+  let ip;
+  let limit;
+  try {
+    ip = getClientIp(req);
+    limit = await checkAttempt(ip, "login");
+  } catch {
+    limit = STORE_ERROR;
+  }
+  if (!limit.ok) return rateLimitResponse(limit);
 
   const { password } = await req.json().catch(() => ({}));
 
-  // Contraseña incorrecta (o error de DB) → 401. El intento ya quedó contado.
+  // Error de DB o contraseña incorrecta → 401. El intento ya quedó contado.
   if (!(await checkAdminPassword(password))) {
     return NextResponse.json(
       { ok: false, error: "Contraseña incorrecta" },
@@ -45,19 +66,17 @@ export async function POST(req) {
     );
   }
 
-  // Contraseña correcta: limpiamos el contador y creamos la sesión.
-  resetAttempts(ip);
+  // Si falla el reset, el contador queda como estaba: es fail-closed.
+  await resetAttempts(ip, "login");
 
   const session = createSession();
   if (!session) {
-    // AUTH_SECRET no está configurado: no podemos firmar sesiones.
     return NextResponse.json(
       { ok: false, error: "Error de configuración del servidor" },
       { status: 500 }
     );
   }
 
-  // Guardamos la cookie de sesión en la respuesta.
   const cookieStore = await cookies();
   cookieStore.set(session.name, session.value, session.options);
 

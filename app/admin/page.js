@@ -12,7 +12,7 @@
 import AdminPanel from "./AdminPanel";
 
 export const metadata = {
-  title: "Admin | Lucio Ingargiola",
+  title: "Admin",
   description: "Panel privado para administrar los proyectos.",
   robots: {
     index: false, // no indexar en Google

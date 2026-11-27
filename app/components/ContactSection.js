@@ -15,6 +15,7 @@ import { useState } from "react";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { CONTACT_EMAIL, CONTACT_EMAIL_HREF } from "@/lib/site";
 import FadeInUp from "./FadeInUp";
 import Volver from "./Volver";
 
@@ -50,10 +51,16 @@ export default function ContactSection() {
     }
     setStatus("sending");
     setErrorMsg(null);
+
+    // Si faltan las claves públicas de EmailJS, no intentamos enviar: el
+    // visitante ve un mensaje claro y el correo directo como alternativa.
+    if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
+      setStatus("error");
+      setErrorMsg(`${t.contact.configError} ${CONTACT_EMAIL}`);
+      return;
+    }
+
     try {
-      if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-        throw new Error("Faltan las variables de EmailJS en .env.local");
-      }
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_TEMPLATE_ID,
@@ -69,12 +76,11 @@ export default function ContactSection() {
       setStatus("success");
       setFormState({ name: "", email: "", phone: "", message: "", privacy: false });
     } catch (err) {
+      // El detalle técnico queda en la consola; al visitante le mostramos un
+      // mensaje accionable en su idioma, sin códigos internos del proveedor.
+      console.error("Error al enviar el formulario con EmailJS:", err);
       setStatus("error");
-      setErrorMsg(err.text || err.message);
-      setTimeout(() => {
-        setStatus(null);
-        setErrorMsg(null);
-      }, 8000);
+      setErrorMsg(t.contact.error);
     }
   };
 
@@ -91,7 +97,7 @@ export default function ContactSection() {
   return (
     <section
       id="contacto"
-      className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)]"
+      className="scroll-mt-[64px] lg:scroll-mt-[84px] py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-section-glass)]"
     >
       <div className="max-w-6xl mx-auto">
         <FadeInUp>
@@ -103,7 +109,10 @@ export default function ContactSection() {
 
         <FadeInUp delay={100}>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mt-4 mb-4 text-[var(--ink-strong)]">
-            {t.contact.title}
+            {t.contact.title}{" "}
+            <span className="text-[var(--accent)]">
+              {t.contact.titleAccent}
+            </span>
           </h2>
         </FadeInUp>
 
@@ -116,18 +125,18 @@ export default function ContactSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <FadeInUp delay={250} className="space-y-6">
             <a
-              href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL || "tu@email.com"}`}
+              href={CONTACT_EMAIL_HREF}
               className="flex items-center gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--bg-card)] transition-all duration-300 hover:-translate-y-0.5 hover:border-accent-50"
             >
               <div className="w-12 h-12 rounded-xl bg-accent-10 flex items-center justify-center text-[var(--accent)]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                   <polyline points="22,6 12,13 2,6" />
                 </svg>
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)]">{t.contact.email}</p>
-                <p className="text-sm font-medium text-[var(--ink-strong)]">{process.env.NEXT_PUBLIC_CONTACT_EMAIL || "tu@email.com"}</p>
+                <p className="text-sm font-medium text-[var(--ink-strong)] break-all">{CONTACT_EMAIL}</p>
               </div>
             </a>
 
@@ -173,10 +182,15 @@ export default function ContactSection() {
           <FadeInUp delay={300}>
             <form
               onSubmit={handleSubmit}
+              aria-busy={status === "sending"}
               className="rounded-2xl border border-[var(--line)] bg-[var(--bg-card)] p-6 sm:p-8 shadow-xl space-y-5"
             >
               {status === "success" ? (
-                <div className="py-8 text-center animate-[fade-up_0.3s_ease-out_both]">
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="py-8 text-center animate-[fade-up_0.3s_ease-out_both]"
+                >
                   <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-400">
                     <CheckCircle2 size={32} />
                   </div>
@@ -197,28 +211,28 @@ export default function ContactSection() {
               ) : (
                 <>
                   <div>
-                    <label className={labelClass}>{t.contact.name} *</label>
-                    <input type="text" name="name" value={formState.name} onChange={handleChange} required placeholder={t.contact.namePlaceholder} className={inputClass} />
+                    <label htmlFor="contact-name" className={labelClass}>{t.contact.name} *</label>
+                    <input id="contact-name" type="text" name="name" value={formState.name} onChange={handleChange} required autoComplete="name" placeholder={t.contact.namePlaceholder} className={inputClass} />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className={labelClass}>{t.contact.email} *</label>
-                      <input type="email" name="email" value={formState.email} onChange={handleChange} required placeholder="email@example.com" className={inputClass} />
+                      <label htmlFor="contact-email" className={labelClass}>{t.contact.email} *</label>
+                      <input id="contact-email" type="email" name="email" value={formState.email} onChange={handleChange} required autoComplete="email" placeholder="email@example.com" className={inputClass} />
                     </div>
                     <div>
-                      <label className={labelClass}>{t.contact.phone}</label>
-                      <input type="tel" name="phone" value={formState.phone} onChange={handleChange} placeholder={t.contact.phonePlaceholder} className={inputClass} />
+                      <label htmlFor="contact-phone" className={labelClass}>{t.contact.phone}</label>
+                      <input id="contact-phone" type="tel" name="phone" value={formState.phone} onChange={handleChange} autoComplete="tel" placeholder={t.contact.phonePlaceholder} className={inputClass} />
                     </div>
                   </div>
 
                   <div>
-                    <label className={labelClass}>{t.contact.message} *</label>
-                    <textarea name="message" value={formState.message} onChange={handleChange} required rows={5} placeholder={t.contact.messagePlaceholder} className={`${inputClass} resize-none`} />
+                    <label htmlFor="contact-message" className={labelClass}>{t.contact.message} *</label>
+                    <textarea id="contact-message" name="message" value={formState.message} onChange={handleChange} required rows={5} placeholder={t.contact.messagePlaceholder} className={`${inputClass} resize-none`} />
                   </div>
 
-                  <label className="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="privacy" checked={formState.privacy} onChange={handleChange} required className="mt-0.5 w-4 h-4 rounded accent-[var(--accent)] cursor-pointer" />
+                  <label htmlFor="contact-privacy" className="flex items-start gap-3 cursor-pointer">
+                    <input id="contact-privacy" type="checkbox" name="privacy" checked={formState.privacy} onChange={handleChange} required className="mt-0.5 w-4 h-4 rounded accent-[var(--accent)] cursor-pointer" />
                     <span className="text-xs text-[var(--ink-soft)] leading-relaxed">
                       {t.contact.privacy}
                     </span>
@@ -240,13 +254,26 @@ export default function ContactSection() {
                   </button>
 
                   {status === "error" && errorMsg && (
-                    <p className="text-xs text-red-400 text-center break-words bg-red-500/10 border border-red-400/20 rounded-lg px-3 py-2 animate-[fade-up_0.3s_ease-out_both]">
+                    <p
+                      role="alert"
+                      aria-live="assertive"
+                      className="text-xs text-red-400 text-center break-words bg-red-500/10 border border-red-400/20 rounded-lg px-3 py-2 animate-[fade-up_0.3s_ease-out_both]"
+                    >
                       {errorMsg}
                     </p>
                   )}
                 </>
               )}
             </form>
+            <p className="mt-4 text-center text-xs text-[var(--ink-soft)]">
+              {t.contact.direct}{" "}
+              <a
+                href={CONTACT_EMAIL_HREF}
+                className="font-semibold text-[var(--accent)] break-all hover:underline"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </p>
           </FadeInUp>
         </div>
       </div>

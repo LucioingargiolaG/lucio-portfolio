@@ -24,7 +24,7 @@ function unauthorized() {
 
 // GET: lista de proyectos.
 export async function GET(req) {
-  if (!isAuthenticatedRequest(req)) return unauthorized();
+  if (!(await isAuthenticatedRequest(req))) return unauthorized();
 
   try {
     await connectToDatabase();
@@ -40,7 +40,7 @@ export async function GET(req) {
 
 // POST: crea un proyecto.
 export async function POST(req) {
-  if (!isAuthenticatedRequest(req)) return unauthorized();
+  if (!(await isAuthenticatedRequest(req))) return unauthorized();
 
   try {
     const body = await req.json();
@@ -57,6 +57,7 @@ export async function POST(req) {
             .map((s) => s.trim())
             .filter(Boolean),
       githubUrl: body.githubUrl,
+      demoUrl: body.demoUrl || "",
       category: body.category,
       architecture: body.architecture,
       image: body.image || "🛒", // emoji por defecto si no mandan imagen
@@ -74,7 +75,7 @@ export async function POST(req) {
 
 // DELETE: elimina un proyecto por su id (mandado en el body).
 export async function DELETE(req) {
-  if (!isAuthenticatedRequest(req)) return unauthorized();
+  if (!(await isAuthenticatedRequest(req))) return unauthorized();
 
   const { id } = await req.json().catch(() => ({}));
   if (!id) {

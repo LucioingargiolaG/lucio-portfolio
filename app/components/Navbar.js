@@ -22,6 +22,7 @@ import Logo from './Logo';
 
 // Rutas de navegación. El orden determina cuál se muestra de izquierda a derecha.
 const navLinks = [
+  { key: 'services', href: '#servicios' },
   { key: 'projects', href: '#proyectos' },
   { key: 'howIWork', href: '#como-trabajo' },
   { key: 'contact', href: '#contacto' },
@@ -171,7 +172,14 @@ export default function Navbar() {
     // Refleja la sección en la URL sin recargar ni ensuciar el historial.
     history.replaceState(null, '', href);
     const target = document.getElementById(href.slice(1));
-    const scroll = () => target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const scroll = () => {
+      if (href === '#inicio') {
+        // "Inicio" siempre vuelve a la parte superior real de la página.
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
     if (target) {
       scroll();
     } else {
@@ -222,7 +230,7 @@ export default function Navbar() {
   // mantiene el ancla de la URL sincronizada con lo que se está viendo.
   useEffect(() => {
     // Incluimos #inicio para que, al volver arriba, la URL también acompañe.
-    const ids = ['inicio', ...navLinks.map((link) => link.href.slice(1))];
+    const ids = ['inicio', 'caso-utap', ...navLinks.map((link) => link.href.slice(1))];
     const sections = ids
       .map((id) => document.getElementById(id))
       .filter(Boolean);
@@ -258,14 +266,16 @@ export default function Navbar() {
           y eso haría que "fixed" se posicione respecto al header, no a la pantalla. */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 z-40"
+          className="lg:hidden fixed inset-0 z-40"
           onClick={() => setMobileOpen(false)}
           aria-hidden="true"
         />
       )}
 
-      <header className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] max-w-6xl md:w-auto">
-      <nav className="bg-[var(--bg-nav)] backdrop-blur-md border-[var(--line-soft)] rounded-full px-6 py-3 flex items-center justify-between md:justify-center gap-8 shadow-lg shadow-black/40">
+      <header className="fixed top-[max(0.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1rem)] max-w-6xl lg:top-6 lg:w-auto">
+      {/* Barra: en móvil usa padding vertical mínimo (py-1.5) para que quede
+          lo más arriba y lo más baja posible, sin tapar la foto del Hero. */}
+      <nav className="bg-[var(--bg-nav)] backdrop-blur-md border-[var(--line-soft)] rounded-full px-4 py-1.5 flex items-center justify-between lg:justify-center lg:gap-8 lg:px-6 lg:py-3 shadow-lg shadow-black/40">
         {/* Logo */}
         <a
           href="#inicio"
@@ -276,7 +286,7 @@ export default function Navbar() {
         </a>
 
         {/* Enlaces centrales (solo desktop) */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) => {
             const isActive = active === link.key;
             return (
@@ -297,17 +307,17 @@ export default function Navbar() {
         </div>
 
         {/* Controles de la derecha (solo desktop) */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <ModeSwitch />
           <Controls />
         </div>
 
-        {/* Tema + botón hamburguesa (móvil) */}
-        <div className="md:hidden flex items-center gap-1">
+        {/* Tema + botón hamburguesa (móvil): targets de 34–36 px */}
+        <div className="lg:hidden flex items-center gap-1">
           <button
             type="button"
             onClick={toggleTheme}
-            className="text-[var(--ink-soft)] hover:text-[var(--ink-strong)] cursor-pointer p-1.5 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
+            className="text-[var(--ink-soft)] hover:text-[var(--ink-strong)] cursor-pointer p-2 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
             aria-label="Toggle theme"
           >
             {isDark ? <Sun size={18} /> : <Moon size={18} />}
@@ -315,7 +325,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="text-[var(--ink-strong)] cursor-pointer p-1 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
+            className="text-[var(--ink-strong)] cursor-pointer p-2 rounded-full transition-all duration-300 hover:bg-[var(--bg-glass)]"
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
           >
@@ -324,9 +334,12 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Menú móvil desplegable (pegado a la barra, sin espacio) */}
+      {/* Menú móvil desplegable (pegado a la barra, sin espacio).
+          Sin backdrop-blur: el panel ya usa un fondo casi opaco
+          (--bg-nav-solid) y el blur sobre un fondo animado (estrellas) cuesta
+          un recálculo por frame justo al abrir el menú. */}
       {mobileOpen && (
-        <div className="md:hidden absolute top-full left-1/2 -translate-x-1/2 w-full bg-[var(--bg-nav-solid)] backdrop-blur-md border-[var(--line-soft)] rounded-3xl p-4 space-y-1 shadow-xl shadow-black/40">
+        <div className="lg:hidden absolute top-full left-1/2 -translate-x-1/2 w-full bg-[var(--bg-nav-solid)] border-[var(--line-soft)] rounded-3xl p-4 space-y-1 shadow-xl shadow-black/40">
           {navLinks.map((link) => {
             const isActive = active === link.key;
             return (

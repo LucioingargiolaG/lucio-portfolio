@@ -10,12 +10,30 @@
 
 import { connectToDatabase } from "@/lib/mongodb";
 import Project from "@/models/Project";
+import { SITE_URL } from "@/lib/site";
+import { featuredRank } from "@/lib/projectCopy";
 import ProjectsContent from "./ProjectsContent";
 
 export const metadata = {
-  title: "Proyectos | Lucio Ingargiola",
+  title: "Projects & Case Studies",
   description:
-    "Portafolio de proyectos de desarrollo front-end y marketing digital de Lucio Ingargiola.",
+    "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+  alternates: {
+    canonical: `${SITE_URL}/proyectos`,
+  },
+  openGraph: {
+    title: "Projects & Case Studies",
+    description:
+      "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+    url: `${SITE_URL}/proyectos`,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Projects & Case Studies",
+    description:
+      "Web development projects by Lucio Ingargiola, including UTAP, a QR digital menu with an admin dashboard running in a real restaurant.",
+  },
 };
 
 // Revalida cada 60 s: sirve la versión cacheada y regenera en background.
@@ -35,10 +53,15 @@ export default async function ProjectsPage() {
       description: p.description,
       technologies: p.technologies ?? [],
       githubUrl: p.githubUrl,
+      demoUrl: p.demoUrl ?? "",
       category: p.category,
       architecture: p.architecture,
       image: p.image ?? "🛒",
     }));
+    // Orden editorial: UTAP primero, Portfolio Personal segundo y el resto
+    // por antigüedad. Array.prototype.sort es estable en Node, así que los
+    // proyectos empatados conservan el orden por fecha.
+    projects.sort((a, b) => featuredRank(a) - featuredRank(b));
   } catch (err) {
     // Sin DB no rompemos la página: logueamos y mostramos estado vacío.
     console.warn(

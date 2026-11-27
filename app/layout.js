@@ -26,6 +26,7 @@ import { ModeProvider } from "./context/ModeContext"; // modo web/ia
 import Navbar from "./components/Navbar"; // barra de navegación fija
 import Starfield from "./components/Starfield"; // fondo estelar animado
 import SecretAccess from "./components/SecretAccess"; // atajo oculto al /admin
+import { SITE_URL, LINKS } from "@/lib/site";
 
 // Fuente principal del body (párrafos y UI general).
 const inter = Inter({
@@ -54,26 +55,38 @@ const poppins = Poppins({
 });
 
 // Metadatos globales del sitio (SEO y compartir en redes).
+// El título de la home está en inglés porque el objetivo principal son
+// clientes internacionales; las páginas internas usan la plantilla.
 export const metadata = {
-  metadataBase: new URL("https://lucio-portfolio-theta.vercel.app"),
-  title: "Lucio Ingargiola | Front End Developer",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Lucio Ingargiola — Web Developer for Small Businesses",
+    template: "%s | Lucio Ingargiola",
+  },
   description:
-    "Estudiante de la carrera Tecnicatura Universitaria en Desarrollo de Aplicaciones Informáticas - Front End Developer especializado en React, Next.js, Angular y más.",
+    "I build fast, modern, and user-friendly websites for small businesses, combining web development with digital marketing strategy. Based in Argentina, working with clients worldwide.",
   keywords: [
     "Lucio Ingargiola",
-    "Front End",
+    "web developer",
+    "small business websites",
+    "landing pages",
     "React",
     "Next.js",
-    "Angular",
-    "JavaScript",
-    "HTML",
-    "CSS",
+    "QR digital menu",
+    "SEO",
+    "desarrollo web",
+    "Argentina",
   ],
+  authors: [{ name: "Lucio Ingargiola", url: SITE_URL }],
+  creator: "Lucio Ingargiola",
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Lucio Ingargiola | Front End Developer",
+    title: "Lucio Ingargiola — Web Developer for Small Businesses",
     description:
-      "Desarrollador Front End y estudiante de Desarrollo de Aplicaciones Informáticas",
-    url: "https://lucio-portfolio-theta.vercel.app",
+      "Fast, modern websites for small businesses, combining web development with digital marketing strategy.",
+    url: SITE_URL,
     siteName: "Lucio Ingargiola",
     images: [
       {
@@ -83,14 +96,15 @@ export const metadata = {
         alt: "Lucio Ingargiola",
       },
     ],
-    locale: "es_AR",
+    locale: "en_US",
+    alternateLocale: ["es_AR"],
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "Lucio Ingargiola | Front End Developer",
+    title: "Lucio Ingargiola — Web Developer for Small Businesses",
     description:
-      "Desarrollador Front End y estudiante de Desarrollo de Aplicaciones Informáticas",
+      "Fast, modern websites for small businesses, combining web development with digital marketing strategy.",
     images: ["/profile.webp"],
   },
   robots: {
@@ -106,6 +120,45 @@ export const viewport = {
   themeColor: "#000000",
 };
 
+// Datos estructurados para buscadores (schema.org).
+// Solo incluimos información verificable: no hay reseñas ni métricas inventadas.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Lucio Ingargiola",
+  url: SITE_URL,
+  image: `${SITE_URL}/profile.webp`,
+  jobTitle: "Web Developer",
+  description:
+    "Web developer focused on fast, modern websites for small businesses, combining development with digital marketing strategy.",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Azul",
+    addressRegion: "Buenos Aires",
+    addressCountry: "AR",
+  },
+  sameAs: [LINKS.github, LINKS.linkedin, LINKS.instagram],
+  knowsAbout: [
+    "Web Development",
+    "React",
+    "Next.js",
+    "JavaScript",
+    "TypeScript",
+    "Tailwind CSS",
+    "MongoDB",
+    "SEO",
+    "Digital Marketing",
+  ],
+};
+
+/**
+ * Boot script sincronizado con el parseo del HTML: aplica idioma y tema
+ * guardados ANTES del primer paint. Así no hay flash de español para quien
+ * eligió inglés, ni de tema oscuro para quien eligió claro.
+ * Los providers leen las mismas claves (lang/theme) en useLayoutEffect.
+ */
+const BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var p=new URLSearchParams(location.search).get('lang');var l=(p==='es'||p==='en')?p:localStorage.getItem('lang');if(l!=='es'&&l!=='en'){l=(navigator.language||'').toLowerCase().indexOf('es')===0?'es':'en'}d.lang=l;var t=localStorage.getItem('theme');d.classList.remove('dark','light');d.classList.add(t==='light'?'light':'dark')}catch(e){}})();`;
+
 // Componente raíz: recibe `children` (la página actual).
 export default function RootLayout({ children }) {
   return (
@@ -114,9 +167,18 @@ export default function RootLayout({ children }) {
     <html
       lang="es"
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetBrainsMono.variable} ${poppins.variable} dark`}
-      suppressHydrationWarning // evita warnings de hidratación por el tema
+      suppressHydrationWarning // el boot script cambia lang/clases antes de hidratar
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+      </head>
       <body className="text-[var(--ink)] antialiased overflow-x-hidden">
+        {/* Datos estructurados visibles para buscadores, no para el usuario */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
         {/* Providers: envuelven toda la app para compartir estado. */}
         <ThemeProvider>
           <LanguageProvider>
